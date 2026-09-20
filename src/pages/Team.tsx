@@ -62,12 +62,12 @@ export default function Team() {
 
   const statusColor = (status: string) => {
     const c: Record<string, string> = {
-      approved: 'text-emerald-500 bg-emerald-500/10',
-      submitted: 'text-blue-500 bg-blue-500/10',
-      under_review: 'text-amber-500 bg-amber-500/10',
-      draft: 'text-zinc-500 bg-zinc-100 dark:bg-zinc-800',
-      rejected: 'text-red-500 bg-red-500/10',
-      overdue: 'text-red-500 bg-red-500/10',
+      approved: 'text-success bg-success-bg',
+      submitted: 'bg-navy-100 text-navy-700',
+      under_review: 'text-warning bg-warning-bg',
+      draft: 'text-gray-500 bg-gray-100',
+      rejected: 'text-danger bg-danger-bg',
+      overdue: 'text-danger bg-danger-bg',
     };
     return c[status] || c.draft;
   };
@@ -82,10 +82,10 @@ export default function Team() {
       <div className="max-w-7xl mx-auto pb-12">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-text_primary">Team Management</h1>
-            <p className="text-sm text-text_secondary mt-1">Overview of your direct reports and their timesheet status.</p>
+            <h1 className="page-header-title">Team Management</h1>
+            <p className="page-header-sub">Overview of your direct reports and their timesheet status.</p>
           </div>
-          <button onClick={() => setShowBroadcast(!showBroadcast)} className="bg-primary text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition-all hover:bg-primary_dark">
+          <button onClick={() => setShowBroadcast(!showBroadcast)} className="btn-solid">
             <Send className="h-4 w-4" /> Broadcast Reminder
           </button>
         </div>
@@ -93,10 +93,10 @@ export default function Team() {
         {/* Broadcast Panel */}
         {showBroadcast && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mb-8 bg-surface border border-border rounded-xl p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-text_primary mb-2">Send Broadcast Reminder</h3>
+            <h2 className="text-sm font-bold text-navy-900 mb-2">Send Broadcast Reminder</h2>
             <p className="text-xs text-text_secondary mb-4">This will send an in-app notification to your direct reports.</p>
             {broadcastSuccess ? (
-              <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-2 text-emerald-500 text-sm font-semibold">
+              <div className="p-4 bg-success-bg border border-success/20 rounded-lg flex items-center gap-2 text-success text-sm font-semibold">
                 <Check className="h-5 w-5" /> Reminder sent successfully!
               </div>
             ) : (
@@ -122,9 +122,7 @@ export default function Team() {
                     />
                     <p className="text-[10px] text-text_secondary mt-1">Default message pre-filled. Edit as needed.</p>
                   </div>
-                  <button onClick={handleBroadcast} disabled={isBroadcasting || !broadcastMsg.trim()} className="bg-primary text-white px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm disabled:opacity-50">
-                    {isBroadcasting ? 'Sending...' : 'Send'}
-                  </button>
+                  <button onClick={handleBroadcast} disabled={isBroadcasting || !broadcastMsg.trim()} className="btn-solid !px-6">{isBroadcasting ? 'Sending…' : 'Send'}</button>
                 </div>
               </div>
             )}
@@ -132,10 +130,10 @@ export default function Team() {
         )}
 
         {/* Team Table */}
-        <div className="bg-surface border border-border rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-border bg-background/30 flex items-center justify-between">
-            <h2 className="text-base font-bold text-text_primary">Team Members</h2>
-            <span className="text-xs text-text_secondary">{teamMembers.length} member{teamMembers.length !== 1 ? 's' : ''}</span>
+        <div className="table-datagrid-container">
+          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">Team Members</h2>
+            <span className="text-xs text-gray-400 font-medium">{teamMembers.length} member{teamMembers.length !== 1 ? 's' : ''}</span>
           </div>
           {teamMembers.length === 0 ? (
             <div className="p-12 text-center text-text_secondary">
@@ -145,14 +143,14 @@ export default function Team() {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse">
+                <table className="table-datagrid min-w-full">
                   <thead>
-                    <tr className="bg-background/40 text-[10px] font-bold uppercase tracking-widest text-text_secondary border-b border-border">
-                      <th className="px-5 py-4 text-left">Name</th>
-                      <th className="px-5 py-4 text-left">Role</th>
-                      <th className="px-5 py-4 text-left">Email</th>
-                      <th className="px-5 py-4 text-left">Recent Timesheet</th>
-                      <th className="px-5 py-4 text-right">Action</th>
+                    <tr>
+                      <th>Name</th>
+                      <th>Role</th>
+                      <th>Email</th>
+                      <th>Recent Timesheet</th>
+                      <th className="text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/50">
@@ -161,7 +159,7 @@ export default function Team() {
                         className="hover:bg-background/30 transition-colors">
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center font-bold text-primary text-sm flex-shrink-0">
+                            <div className="h-9 w-9 rounded-lg bg-navy-50 flex items-center justify-center font-bold text-navy-700 text-sm flex-shrink-0">
                               {member.name.charAt(0)}
                             </div>
                             <span className="text-sm font-bold text-text_primary">{member.name}</span>
@@ -184,7 +182,7 @@ export default function Team() {
                         </td>
                         <td className="px-5 py-4 text-right">
                           <button onClick={() => setLocation(`/team/${member.id}`)}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary_dark transition-colors">
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy-700 hover:text-navy-900 transition-colors">
                             View <ArrowRight className="h-3.5 w-3.5" />
                           </button>
                         </td>

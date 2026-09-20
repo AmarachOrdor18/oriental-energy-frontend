@@ -36,12 +36,12 @@ const apiDateKey = (value?: string) => {
 
 const statusColor = (status: string) => {
   const colors: Record<string, string> = {
-    approved: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-    submitted: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    under_review: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    draft: 'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700',
-    rejected: 'bg-red-500/10 text-red-500 border-red-500/20',
-    overdue: 'bg-red-500/10 text-red-500 border-red-500/20',
+    approved: 'bg-success/10 text-success border-success/20',
+    submitted: 'bg-navy-100 text-navy-700 border-teal-300',
+    under_review: 'bg-warning/10 text-warning border-warning/20',
+    draft: 'bg-gray-100 text-gray-500 border-gray-200   ',
+    rejected: 'bg-danger/10 text-danger border-danger/20',
+    overdue: 'bg-danger/10 text-danger border-danger/20',
   };
   return colors[status] || colors.draft;
 };
@@ -152,7 +152,7 @@ export default function SubmissionDetail() {
     return (
       <DashboardLayout>
         <div className="flex h-[60vh] items-center justify-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
+          <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-navy-800" />
         </div>
       </DashboardLayout>
     );
@@ -161,7 +161,7 @@ export default function SubmissionDetail() {
   if (error || !timesheet) {
     return (
       <DashboardLayout>
-        <div className="mx-auto max-w-3xl rounded-lg border border-red-500/20 bg-red-500/10 p-6 text-red-500">
+        <div className="mx-auto max-w-3xl rounded-lg border border-danger/20 bg-danger/10 p-6 text-danger">
           <p className="font-semibold">{error || 'Submission not found.'}</p>
         </div>
       </DashboardLayout>
@@ -191,9 +191,9 @@ export default function SubmissionDetail() {
         </div>
 
         {timesheet.status === 'rejected' && (
-          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="rounded-xl border border-danger/20 bg-danger/10 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-red-500 mb-1">This timesheet was returned</p>
+              <p className="text-sm font-bold text-danger mb-1">This timesheet was returned</p>
               {timesheet.rejection_reason && (
                 <p className="text-sm text-red-400">Reason: {timesheet.rejection_reason}</p>
               )}
@@ -202,14 +202,14 @@ export default function SubmissionDetail() {
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={() => setLocation('/daily-logging')}
-                className="flex items-center gap-2 whitespace-nowrap rounded-xl border border-red-300 dark:border-red-500/30 bg-white dark:bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/20 transition-colors"
+                className="flex items-center gap-2 whitespace-nowrap rounded-xl border border-red-300 dark:border-red-500/30 bg-white dark:bg-danger/10 px-4 py-2.5 text-sm font-bold text-danger hover:bg-danger-bg dark:hover:bg-danger/20 transition-colors"
               >
                 Fix in Daily Log
               </button>
               <button
                 onClick={handleResubmit}
                 disabled={isResubmitting}
-                className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-red-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-500/20 hover:bg-red-600 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-danger px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-500/20 hover:bg-red-600 transition-colors disabled:opacity-50"
               >
                 {isResubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
                 {isResubmitting ? 'Resubmitting…' : 'Resubmit'}
@@ -219,23 +219,23 @@ export default function SubmissionDetail() {
         )}
 
         {actionError && (
-          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-500 font-semibold">{actionError}</div>
+          <div className="rounded-xl border border-danger/20 bg-danger/10 p-4 text-sm text-danger font-semibold">{actionError}</div>
         )}
 
         {(timesheet.status === 'submitted' || timesheet.status === 'under_review') && (
-          <div className="rounded-xl border border-amber-300/40 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="rounded-xl border border-warning/30 bg-warning-bg dark:border-warning/20  p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-amber-700 dark:text-amber-400 mb-1">
+              <p className="text-sm font-bold text-warning  mb-1">
                 {timesheet.status === 'under_review' ? 'Your Line Manager is reviewing this' : 'Awaiting Line Manager review'}
               </p>
-              <p className="text-xs text-amber-600/80 dark:text-amber-400/70">
+              <p className="text-xs text-warning/80 /70">
                 You can withdraw this submission, fix your hours in Daily Log, and resubmit.
               </p>
             </div>
             <button
               onClick={handleWithdraw}
               disabled={isWithdrawing}
-              className="flex items-center gap-2 whitespace-nowrap rounded-xl border border-amber-400 bg-white dark:bg-amber-500/20 px-5 py-2.5 text-sm font-bold text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-500/30 transition-colors flex-shrink-0 disabled:opacity-50"
+              className="flex items-center gap-2 whitespace-nowrap rounded-xl border border-warning bg-white  px-5 py-2.5 text-sm font-bold text-warning  hover:bg-warning-bg  transition-colors flex-shrink-0 disabled:opacity-50"
             >
               {isWithdrawing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
               {isWithdrawing ? 'Withdrawing…' : 'Withdraw & Edit'}
@@ -251,7 +251,7 @@ export default function SubmissionDetail() {
             { label: 'Period', value: timesheet.accounting_period, icon: CalendarDays },
           ].map((item) => (
             <div key={item.label} className="kpi-card">
-              <item.icon className="mb-4 h-5 w-5 text-primary" />
+              <item.icon className="mb-4 h-5 w-5 text-navy-800" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-text_secondary">{item.label}</p>
               <p className="mt-1 text-2xl font-bold text-text_primary">{item.value}</p>
             </div>
@@ -276,8 +276,8 @@ export default function SubmissionDetail() {
                       <th key={day.dateStr} className="min-w-[96px] border-l border-border/50 p-3 text-center">
                         <div className="text-xs font-bold uppercase tracking-wider text-text_secondary">{day.label}</div>
                         <div className="mt-0.5 text-sm text-text_primary">{day.date.getDate()}</div>
-                        {leave && <div className="mt-1 text-[9px] font-bold uppercase text-orange-500">{leaveLabel(leave)}</div>}
-                        {holiday && <div className="mt-1 truncate text-[9px] font-bold uppercase text-purple-500">{holiday.name}</div>}
+                        {leave && <div className="mt-1 text-[9px] font-bold uppercase text-gold-600">{leaveLabel(leave)}</div>}
+                        {holiday && <div className="mt-1 truncate text-[9px] font-bold uppercase text-gold-600">{holiday.name}</div>}
                       </th>
                     );
                   })}
@@ -322,7 +322,7 @@ export default function SubmissionDetail() {
                       {getDayTotal(day.dateStr).toFixed(1)}h
                     </td>
                   ))}
-                  <td className="border-l border-border bg-primary/10 p-3 text-center text-lg font-bold text-primary">{grandTotal.toFixed(1)}h</td>
+                  <td className="border-l border-border bg-navy-50 p-3 text-center text-lg font-bold text-navy-800">{grandTotal.toFixed(1)}h</td>
                 </tr>
               </tfoot>
             </table>
@@ -390,26 +390,26 @@ export default function SubmissionDetail() {
                   <div className="flex flex-col items-center w-full md:w-auto md:min-w-[140px] md:max-w-[160px]">
                     <div
                       className={`h-14 w-14 rounded-2xl flex items-center justify-center border-2 transition-all shadow-sm
-                        ${stage.failed ? 'border-red-500/40 bg-red-500/10 ring-4 ring-red-500/10'
-                          : stage.done ? 'border-emerald-500/40 bg-emerald-500/10 ring-4 ring-emerald-500/10'
-                          : stage.active ? 'border-amber-400/50 bg-amber-50 dark:bg-amber-500/10 ring-4 ring-amber-400/10'
+                        ${stage.failed ? 'border-red-500/40 bg-danger/10 ring-4 ring-red-500/10'
+                          : stage.done ? 'border-success/40 bg-success/10 ring-4 ring-success/10'
+                          : stage.active ? 'border-warning/40 bg-warning-bg  ring-4 ring-warning/10'
                           : 'border-border bg-background'}`}
                     >
                       <div
                         className={`h-3 w-3 rounded-full
-                          ${stage.failed ? 'bg-red-500'
-                            : stage.done ? 'bg-emerald-500'
-                            : stage.active ? 'bg-amber-400 animate-pulse'
-                            : 'bg-zinc-300 dark:bg-zinc-600'}`}
+                          ${stage.failed ? 'bg-danger'
+                            : stage.done ? 'bg-success'
+                            : stage.active ? 'bg-warning animate-pulse'
+                            : 'bg-gray-300 '}`}
                       />
                     </div>
                     <div className="mt-3 text-center px-1 w-full">
                       <p className={`text-[10px] font-bold uppercase tracking-widest
-                        ${stage.failed ? 'text-red-500' : stage.done ? 'text-emerald-600 dark:text-emerald-400' : stage.active ? 'text-amber-600 dark:text-amber-400' : 'text-text_secondary'}`}>
+                        ${stage.failed ? 'text-danger' : stage.done ? 'text-success ' : stage.active ? 'text-warning ' : 'text-text_secondary'}`}>
                         {stage.actor}
                       </p>
                       <p className={`text-xs font-bold mt-0.5
-                        ${stage.failed ? 'text-red-500' : stage.done ? 'text-text_primary' : stage.active ? 'text-text_primary' : 'text-text_secondary/50'}`}>
+                        ${stage.failed ? 'text-danger' : stage.done ? 'text-text_primary' : stage.active ? 'text-text_primary' : 'text-text_secondary/50'}`}>
                         {stage.label}
                       </p>
                       <p className="text-[10px] text-text_secondary mt-0.5 leading-tight line-clamp-2">{stage.detail}</p>
@@ -417,7 +417,7 @@ export default function SubmissionDetail() {
                   </div>
                   {i < arr.length - 1 && (
                     <div className={`hidden md:block flex-1 h-0.5 mx-2 transition-all
-                      ${stage.done ? 'bg-emerald-500/40' : 'bg-border'}`}
+                      ${stage.done ? 'bg-success/40' : 'bg-border'}`}
                     />
                   )}
                 </div>

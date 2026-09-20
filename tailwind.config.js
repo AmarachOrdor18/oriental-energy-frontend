@@ -8,6 +8,28 @@ export default {
   theme: {
     extend: {
       colors: {
+        /* ── Brand ramp (ValuAlliance-derived teal green) ── */
+        teal: {
+          50: 'hsl(var(--teal-50))',
+          100: 'hsl(var(--teal-100))',
+          200: 'hsl(var(--teal-200))',
+          300: 'hsl(var(--teal-300))',
+          400: 'hsl(var(--teal-400))',
+          500: 'hsl(var(--teal-500))',
+          600: 'hsl(var(--teal-600))',
+          700: 'hsl(var(--teal-700))',
+          800: 'hsl(var(--teal-800))',
+          900: 'hsl(var(--teal-900))',
+          950: 'hsl(var(--teal-950))',
+        },
+        gold: {
+          100: 'hsl(var(--gold-100))',
+          300: 'hsl(var(--gold-300))',
+          400: 'hsl(var(--gold-400))',
+          500: 'hsl(var(--gold-500))',
+          600: 'hsl(var(--gold-600))',
+        },
+        /* ── Semantic tokens (existing OE names, kept for compat) ── */
         background: 'var(--color-background)',
         surface: 'var(--color-surface)',
         sidebar: 'var(--color-sidebar)',
@@ -28,12 +50,15 @@ export default {
         success_text: 'var(--color-success-text)',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Manrope', 'sans-serif'],
+        sans: ['Outfit', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        display: ['Outfit', 'Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       boxShadow: {
-        'card': '0 2px 4px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
-      }
+        'card': 'var(--shadow-sm)',
+        'panel': 'var(--shadow-md)',
+        'float': 'var(--shadow-lg)',
+      },
     },
   },
   plugins: [],

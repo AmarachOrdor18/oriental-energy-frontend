@@ -41,13 +41,13 @@ export default function NewProjectModal({ isOpen, onClose }: Props) {
           <div className="space-y-2">
             <label className="block text-[10px] font-black text-text_secondary uppercase tracking-[0.2em]">Project Title</label>
             <div className="relative">
-              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-800" />
               <input 
                 type="text" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Pipeline Maintenance Phase 2"
-                className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold" 
+                className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-4 focus:ring-navy-800/5 transition-all font-bold" 
                 required 
               />
             </div>
@@ -61,27 +61,27 @@ export default function NewProjectModal({ isOpen, onClose }: Props) {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="PIP-26"
-                className="w-full bg-background border border-border_color rounded-xl px-4 py-3 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold" 
+                className="w-full bg-background border border-border_color rounded-xl px-4 py-3 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-4 focus:ring-navy-800/5 transition-all font-bold" 
                 required 
               />
             </div>
             <div className="space-y-2">
               <label className="block text-[10px] font-black text-text_secondary uppercase tracking-[0.2em]">Weekly Hour Limit</label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-800" />
                 <input 
                   type="number" 
                   value={maxHours}
                   onChange={(e) => setMaxHours(e.target.value)}
-                  className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold" 
+                  className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-4 focus:ring-navy-800/5 transition-all font-bold" 
                   required 
                 />
               </div>
             </div>
           </div>
 
-          <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl flex items-start gap-3">
-             <Shield className="h-5 w-5 text-primary mt-0.5" />
+          <div className="p-4 bg-navy-50 border border-navy-800/10 rounded-xl flex items-start gap-3">
+             <Shield className="h-5 w-5 text-navy-800 mt-0.5" />
              <p className="text-[10px] text-text_secondary font-medium leading-relaxed uppercase">
                 As a Department Head, you are authorized to create projects for your department. These projects will be immediately available to your team for time logging.
              </p>
@@ -94,7 +94,7 @@ export default function NewProjectModal({ isOpen, onClose }: Props) {
             <button 
               type="submit" 
               disabled={isSubmitting} 
-              className="px-8 py-3 bg-primary hover:bg-primary_dark text-white rounded-xl text-sm font-black transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
+              className="px-8 py-3 bg-navy-800 hover:bg-primary_dark text-white rounded-xl text-sm font-black transition-all shadow-xl shadow-navy-900/20 disabled:opacity-50"
             >
               {isSubmitting ? 'Creating...' : 'Launch Project'}
             </button>

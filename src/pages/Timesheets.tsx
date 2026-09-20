@@ -127,7 +127,7 @@ export default function Timesheets() {
                     return (
                       <div key={i} className="flex flex-col items-center gap-2">
                         <span className="text-[10px] font-bold text-text_secondary">{day}</span>
-                        <div className={`h-8 w-8 rounded-full flex items-center justify-center border ${filled ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500' : 'bg-surface border-border text-text_secondary/30'}`}>
+                        <div className={`h-8 w-8 rounded-full flex items-center justify-center border ${filled ? 'bg-success-bg border-success text-success' : 'bg-surface border-border text-text_secondary/30'}`}>
                           {filled ? <CheckCircle className="h-4 w-4" /> : <div className="h-1.5 w-1.5 rounded-full bg-current" />}
                         </div>
                       </div>

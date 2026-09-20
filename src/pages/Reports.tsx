@@ -96,9 +96,9 @@ export default function Reports() {
     <DashboardLayout>
       <div className="max-w-7xl mx-auto pb-12 space-y-6">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">Finance &amp; Management</p>
-          <h1 className="text-3xl font-bold text-text_primary">Reports</h1>
-          <p className="text-sm text-text_secondary mt-2">Run parameterised reports on timesheet data.</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-gold-600 mb-1.5">Finance &amp; Management</p>
+          <h1 className="page-header-title">Reports</h1>
+          <p className="page-header-sub">Run parameterised reports on timesheet data.</p>
         </div>
 
         {/* Report selector */}
@@ -113,15 +113,15 @@ export default function Reports() {
                 setSummaryResults([]);
                 setHasRun(false);
               }}
-              className={`text-left p-5 rounded-2xl border-2 transition-all ${
+              className={`text-left p-5 rounded-xl border-2 transition-all ${
                 activeReport === r.key
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border bg-surface hover:border-primary/30'
+                  ? 'border-navy-800 bg-navy-50'
+                  : 'border-gray-200 bg-surface hover:border-teal-300'
               }`}
             >
               <div className="flex items-center gap-3 mb-2">
-                <r.icon className={`h-5 w-5 ${activeReport === r.key ? 'text-primary' : 'text-text_secondary'}`} />
-                <span className={`text-sm font-bold ${activeReport === r.key ? 'text-primary' : 'text-text_primary'}`}>
+                <r.icon className={`h-5 w-5 ${activeReport === r.key ? 'text-navy-800' : 'text-gray-400'}`} />
+                <span className={`text-sm font-bold ${activeReport === r.key ? 'text-navy-900' : 'text-text_primary'}`}>
                   {r.label}
                 </span>
               </div>
@@ -133,14 +133,14 @@ export default function Reports() {
         {/* Parameters panel */}
         <div className="section-card">
           <div className="p-5 border-b border-border">
-            <h2 className="text-base font-bold text-text_primary">Parameters</h2>
+            <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">Parameters</h2>
           </div>
           <div className="p-5 space-y-4">
             {activeReport === 'not_posted' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                 <div>
-                  <label className="block text-xs font-bold text-text_secondary uppercase tracking-widest mb-2">
-                    Accounting Period <span className="text-red-500">*</span>
+                  <label className="field-label">
+                    Accounting Period <span className="text-danger">*</span>
                   </label>
                   <select
                     value={notPostedPeriod}
@@ -157,7 +157,7 @@ export default function Reports() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-text_secondary uppercase tracking-widest mb-2">
+                  <label className="field-label">
                     Department
                   </label>
                   <select
@@ -185,8 +185,8 @@ export default function Reports() {
             {activeReport === 'hours_summary' && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
-                  <label className="block text-xs font-bold text-text_secondary uppercase tracking-widest mb-2">
-                    Date From <span className="text-red-500">*</span>
+                  <label className="field-label">
+                    Date From <span className="text-danger">*</span>
                   </label>
                   <input
                     type="date"
@@ -196,8 +196,8 @@ export default function Reports() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-text_secondary uppercase tracking-widest mb-2">
-                    Date To <span className="text-red-500">*</span>
+                  <label className="field-label">
+                    Date To <span className="text-danger">*</span>
                   </label>
                   <input
                     type="date"
@@ -207,7 +207,7 @@ export default function Reports() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-text_secondary uppercase tracking-widest mb-2">
+                  <label className="field-label">
                     Department
                   </label>
                   <select
@@ -232,7 +232,7 @@ export default function Reports() {
               </div>
             )}
 
-            {error && <p className="text-sm text-red-500 font-semibold">{error}</p>}
+            {error && <p className="text-sm text-danger font-semibold">{error}</p>}
           </div>
         </div>
 
@@ -241,7 +241,7 @@ export default function Reports() {
           <div className="section-card">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-text_primary">
+                <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">
                   Timesheets Not Posted — Period {notPostedResults.period?.period_code}
                 </h2>
                 <p className="text-xs text-text_secondary mt-1">
@@ -262,19 +262,19 @@ export default function Reports() {
             </div>
             {(notPostedResults.not_posted || []).length === 0 ? (
               <div className="p-12 text-center">
-                <Users className="h-10 w-10 mx-auto mb-3 text-emerald-500 opacity-60" />
+                <Users className="h-10 w-10 mx-auto mb-3 text-success opacity-60" />
                 <p className="font-bold text-text_primary">All employees have submitted for this period.</p>
                 <p className="text-sm text-text_secondary mt-1">No outstanding timesheets found.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="table-datagrid min-w-full">
                   <thead>
-                    <tr className="text-[10px] uppercase tracking-widest text-text_secondary border-b border-border bg-background/40">
-                      <th className="px-5 py-4">Employee</th>
-                      <th className="px-5 py-4">Department</th>
-                      <th className="px-5 py-4">Manager</th>
-                      <th className="px-5 py-4">Last Submission</th>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Department</th>
+                      <th>Manager</th>
+                      <th>Last Submission</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -296,7 +296,7 @@ export default function Reports() {
                           {row.last_submitted ? (
                             new Date(row.last_submitted).toLocaleDateString('en-GB')
                           ) : (
-                            <span className="text-red-500 font-semibold">Never submitted</span>
+                            <span className="text-danger font-semibold">Never submitted</span>
                           )}
                         </td>
                       </motion.tr>
@@ -313,7 +313,7 @@ export default function Reports() {
           <div className="section-card">
             <div className="p-5 border-b border-border flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-text_primary">Hours Summary</h2>
+                <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">Hours Summary</h2>
                 <p className="text-xs text-text_secondary mt-1">
                   {dateFrom} to {dateTo} · {summaryResults.length} record(s)
                 </p>
@@ -328,13 +328,13 @@ export default function Reports() {
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left min-w-[600px]">
+              <table className="table-datagrid min-w-[600px]">
                 <thead>
-                  <tr className="text-[10px] uppercase tracking-widest text-text_secondary border-b border-border bg-background/40">
-                    <th className="px-5 py-4">Employee</th>
-                    <th className="px-5 py-4">Department</th>
-                    <th className="px-5 py-4">Project</th>
-                    <th className="px-5 py-4 text-right">Total Hours</th>
+                  <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Project</th>
+                    <th className="text-right">Total Hours</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">

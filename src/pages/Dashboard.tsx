@@ -12,6 +12,7 @@ import {
   Send,
 } from 'lucide-react';
 import DashboardLayout from '../components/Layout/DashboardLayout';
+import { StatusBadge } from '../components/ui/StatusBadge';
 import { useAuth } from '../lib/auth';
 import { api } from '../lib/api';
 
@@ -42,18 +43,6 @@ const getCurrentWeekMonday = () => {
   const diff = now.getDate() - day + (day === 0 ? -6 : 1);
   const monday = new Date(now.setDate(diff));
   return toDateKey(monday);
-};
-
-const statusColor = (status: string) => {
-  const colors: Record<string, string> = {
-    approved: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20',
-    submitted: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20',
-    under_review: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20',
-    draft: 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-white/5 dark:text-zinc-300 dark:border-white/10',
-    rejected: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/20',
-    overdue: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/20',
-  };
-  return colors[status] || colors.draft;
 };
 
 export default function Dashboard() {
@@ -129,18 +118,18 @@ export default function Dashboard() {
 
   const statCards = [
     { label: 'Outstanding timesheets', value: outstanding, detail: 'Draft, returned, or overdue', icon: Inbox },
-    { label: 'Weekly hours', value: `${weeklyHours.toFixed(1)}h`, detail: 'Current open week', icon: Clock },
+    { label: 'Weekly hours', value: `${weeklyHours.toFixed(1)}h`, detail: 'Current open week', icon: Clock, mono: true },
     { label: 'Approved', value: counts.approved, detail: 'Visible submissions', icon: CheckCircle },
     role === 'finance' || role === 'admin'
-      ? { label: 'Finance hours', value: financeReviewHours.toFixed(1), detail: `Period ${period}`, icon: BarChart3 }
+      ? { label: 'Finance hours', value: financeReviewHours.toFixed(1), detail: `Period ${period}`, icon: BarChart3, mono: true }
       : { label: 'Needs submission', value: actionQueue, detail: 'Draft, returned, or overdue weeks', icon: AlertTriangle },
   ];
 
   const pulseBars = [
-    { label: 'Approved', value: counts.approved, color: 'bg-primary' },
-    { label: 'Pending', value: counts.pending, color: 'bg-blue-500' },
-    { label: 'Returned', value: counts.returned, color: 'bg-amber-500' },
-    { label: 'Overdue', value: counts.overdue, color: 'bg-red-500' },
+    { label: 'Approved', value: counts.approved, bar: 'bg-success' },
+    { label: 'Pending', value: counts.pending, bar: 'bg-gold-500' },
+    { label: 'Returned', value: counts.returned, bar: 'bg-danger' },
+    { label: 'Overdue', value: counts.overdue, bar: 'bg-gray-400' },
   ];
   const maxPulse = Math.max(...pulseBars.map((item) => item.value), 1);
 
@@ -148,7 +137,7 @@ export default function Dashboard() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-[60vh]">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-navy-800" />
         </div>
       </DashboardLayout>
     );
@@ -157,11 +146,14 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Page header */}
         <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">Role workspace / {role.replace('_', ' ')}</p>
-            <h1 className="text-3xl font-bold text-text_primary">Welcome back, {userName.split(' ')[0]}</h1>
-            <p className="text-sm text-text_secondary mt-2 max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-gold-600 mb-1.5">
+              Role workspace / {role.replace('_', ' ')}
+            </p>
+            <h1 className="page-header-title">Welcome back, {userName.split(' ')[0]}</h1>
+            <p className="page-header-sub max-w-2xl">
               A corporate control view for daily logging, approvals, finance readiness, and open-period compliance.
             </p>
           </div>
@@ -177,29 +169,31 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* KPI cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {statCards.map((stat) => (
-            <div key={stat.label} className="kpi-card">
+            <div key={stat.label} className="kpi-card hover-glow">
               <div className="flex items-center justify-between mb-5">
-                <div className="h-9 w-9 rounded-lg bg-background border border-border flex items-center justify-center">
-                  <stat.icon className="h-4 w-4 text-primary" />
+                <div className="h-9 w-9 rounded-lg bg-navy-50 border border-teal-100 flex items-center justify-center">
+                  <stat.icon className="h-4 w-4 text-navy-700" />
                 </div>
               </div>
-              <p className="text-[10px] font-bold text-text_secondary uppercase tracking-widest">{stat.label}</p>
-              <p className="text-2xl font-bold text-text_primary mt-1">{stat.value}</p>
-              <p className="text-xs text-text_secondary mt-1">{stat.detail}</p>
+              <p className="kpi-label">{stat.label}</p>
+              <p className={`kpi-value mt-1 ${stat.mono ? 'font-mono' : ''}`}>{stat.value}</p>
+              <p className="text-xs text-gray-400 mt-1 font-medium">{stat.detail}</p>
             </div>
           ))}
         </section>
 
+        {/* Two-column section */}
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="section-card">
-            <div className="p-5 border-b border-border flex items-center justify-between">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-text_primary">Monthly submission pulse</h2>
-                <p className="text-xs text-text_secondary mt-1">Status mix for visible timesheets.</p>
+                <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">Monthly submission pulse</h2>
+                <p className="text-xs text-gray-400 mt-1 font-medium">Status mix for visible timesheets.</p>
               </div>
-              <button onClick={() => setLocation('/submissions')} className="text-xs font-bold text-primary flex items-center gap-1">
+              <button onClick={() => setLocation('/submissions')} className="text-xs font-bold text-navy-700 flex items-center gap-1 hover:text-navy-900">
                 View tracker <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -207,11 +201,14 @@ export default function Dashboard() {
               {pulseBars.map((item) => (
                 <div key={item.label}>
                   <div className="flex items-center justify-between text-xs font-semibold mb-2">
-                    <span className="text-text_secondary">{item.label}</span>
-                    <span className="text-text_primary">{item.value}</span>
+                    <span className="text-gray-500">{item.label}</span>
+                    <span className="text-navy-900 font-mono">{item.value}</span>
                   </div>
-                  <div className="h-2 rounded-full bg-background border border-border overflow-hidden">
-                    <div className={`h-full ${item.color}`} style={{ width: `${Math.max((item.value / maxPulse) * 100, item.value ? 8 : 0)}%` }} />
+                  <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${item.bar}`}
+                      style={{ width: `${Math.max((item.value / maxPulse) * 100, item.value ? 8 : 0)}%` }}
+                    />
                   </div>
                 </div>
               ))}
@@ -219,27 +216,36 @@ export default function Dashboard() {
           </div>
 
           <div className="section-card">
-            <div className="p-5 border-b border-border flex items-center justify-between">
-              <h2 className="text-base font-bold text-text_primary">Recent submissions</h2>
-              <button onClick={() => setLocation('/submissions')} className="text-xs font-bold text-primary">All submissions</button>
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">Recent submissions</h2>
+              <button onClick={() => setLocation('/submissions')} className="text-xs font-bold text-navy-700 hover:text-navy-900">
+                All submissions
+              </button>
             </div>
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-gray-50">
               {recentTimesheets.length === 0 ? (
-                <div className="p-10 text-center text-text_secondary">
+                <div className="p-10 text-center text-gray-400">
                   <Briefcase className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-semibold">No submissions yet.</p>
+                  <p className="text-sm font-semibold text-gray-500">No submissions yet.</p>
                 </div>
-              ) : recentTimesheets.map((ts) => (
-                <button key={ts.id} onClick={() => setLocation(`/submissions/${ts.id}`)} className="w-full p-4 flex items-center justify-between text-left hover:bg-background transition-colors">
-                  <div>
-                    <p className="text-sm font-bold text-text_primary">
-                      {new Date(ts.week_start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} - {new Date(ts.week_end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </p>
-                    <p className="text-xs text-text_secondary mt-1">{ts.id} / Period {ts.accounting_period}</p>
-                  </div>
-                  <span className={`status-pill ${statusColor(ts.status)}`}>{ts.status === 'rejected' ? 'returned' : ts.status.replace('_', ' ')}</span>
-                </button>
-              ))}
+              ) : (
+                recentTimesheets.map((ts) => (
+                  <button
+                    key={ts.id}
+                    onClick={() => setLocation(`/submissions/${ts.id}`)}
+                    className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50/60 transition-colors"
+                  >
+                    <div>
+                      <p className="text-[13px] font-bold text-navy-900">
+                        {new Date(ts.week_start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} –{' '}
+                        {new Date(ts.week_end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1 font-mono">{ts.id} / Period {ts.accounting_period}</p>
+                    </div>
+                    <StatusBadge status={ts.status === 'rejected' ? 'returned' : ts.status.replace('_', ' ')} />
+                  </button>
+                ))
+              )}
             </div>
           </div>
         </section>

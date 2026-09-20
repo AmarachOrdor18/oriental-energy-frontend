@@ -55,12 +55,12 @@ export default function NewTimesheetModal({ isOpen, onClose, initialDate }: Prop
             <div className="space-y-2">
               <label className="block text-xs font-black text-text_secondary uppercase tracking-widest">Date</label>
               <div className="relative">
-                <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-800" />
                 <input 
                   type="date" 
                   value={logDate}
                   onChange={(e) => setLogDate(e.target.value)}
-                  className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold" 
+                  className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-4 focus:ring-navy-800/5 transition-all font-bold" 
                   required 
                 />
               </div>
@@ -69,7 +69,7 @@ export default function NewTimesheetModal({ isOpen, onClose, initialDate }: Prop
             <div className="space-y-2">
               <label className="block text-xs font-black text-text_secondary uppercase tracking-widest">Hours Logged</label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-800" />
                 <input 
                   type="number" 
                   step="0.5" 
@@ -78,7 +78,7 @@ export default function NewTimesheetModal({ isOpen, onClose, initialDate }: Prop
                   value={hours}
                   onChange={(e) => setHours(e.target.value)}
                   placeholder="0.0"
-                  className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold" 
+                  className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-4 focus:ring-navy-800/5 transition-all font-bold" 
                   required 
                 />
               </div>
@@ -88,11 +88,11 @@ export default function NewTimesheetModal({ isOpen, onClose, initialDate }: Prop
           <div className="space-y-2">
             <label className="block text-xs font-black text-text_secondary uppercase tracking-widest">Project</label>
             <div className="relative">
-              <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-800" />
               <select 
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
-                className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-bold appearance-none cursor-pointer" 
+                className="w-full bg-background border border-border_color rounded-xl pl-10 pr-4 py-3 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-4 focus:ring-navy-800/5 transition-all font-bold appearance-none cursor-pointer" 
                 required
               >
                 <option value="">Select project...</option>
@@ -110,7 +110,7 @@ export default function NewTimesheetModal({ isOpen, onClose, initialDate }: Prop
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="What did you work on today?" 
-              className="w-full bg-background border border-border_color rounded-xl px-4 py-3 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all font-medium resize-none"
+              className="w-full bg-background border border-border_color rounded-xl px-4 py-3 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-4 focus:ring-navy-800/5 transition-all font-medium resize-none"
             ></textarea>
           </div>
 
@@ -121,7 +121,7 @@ export default function NewTimesheetModal({ isOpen, onClose, initialDate }: Prop
             <button 
               type="submit" 
               disabled={isSubmitting} 
-              className="px-8 py-3 bg-primary hover:bg-primary_dark text-white rounded-xl text-sm font-black transition-all shadow-xl shadow-primary/20 disabled:opacity-50 flex items-center gap-2"
+              className="px-8 py-3 bg-navy-800 hover:bg-primary_dark text-white rounded-xl text-sm font-black transition-all shadow-xl shadow-navy-900/20 disabled:opacity-50 flex items-center gap-2"
             >
               {isSubmitting ? (
                 <>

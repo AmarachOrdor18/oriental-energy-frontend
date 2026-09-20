@@ -49,9 +49,9 @@ export default function NotificationCenter() {
   };
 
   const getIcon = (type: string) => {
-    if (type === 'approval') return <CheckCircle className="h-4 w-4 text-emerald-500" />;
-    if (type === 'reminder' || type === 'broadcast') return <Clock className="h-4 w-4 text-blue-500" />;
-    if (type === 'overdue') return <AlertTriangle className="h-4 w-4 text-red-500" />;
+    if (type === 'approval') return <CheckCircle className="h-4 w-4 text-success" />;
+    if (type === 'reminder' || type === 'broadcast') return <Clock className="h-4 w-4 text-navy-700" />;
+    if (type === 'overdue') return <AlertTriangle className="h-4 w-4 text-danger" />;
     return <Info className="h-4 w-4 text-text_secondary" />;
   };
 
@@ -60,7 +60,7 @@ export default function NotificationCenter() {
       <button onClick={() => setIsOpen(!isOpen)} className="relative p-2 text-text_secondary hover:text-text_primary hover:bg-surface rounded-lg transition-colors">
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500 border-2 border-background" />
+          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-danger border-2 border-background" />
         )}
       </button>
 
@@ -71,7 +71,7 @@ export default function NotificationCenter() {
             <div className="p-4 border-b border-border bg-background/50 flex items-center justify-between">
               <h3 className="font-bold text-text_primary">Notifications</h3>
               {unreadCount > 0 && (
-                <button onClick={handleMarkAllRead} className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                <button onClick={handleMarkAllRead} className="text-xs font-semibold text-navy-800 hover:underline flex items-center gap-1">
                   <Check className="h-3 w-3" /> Mark all read
                 </button>
               )}
@@ -86,7 +86,7 @@ export default function NotificationCenter() {
               ) : (
                 <div className="divide-y divide-border/50">
                   {notifications.map((n) => (
-                    <div key={n.id} className={`p-4 hover:bg-background/30 transition-colors flex gap-3 ${!n.is_read ? 'bg-primary/5' : ''}`}>
+                    <div key={n.id} className={`p-4 hover:bg-background/30 transition-colors flex gap-3 ${!n.is_read ? 'bg-navy-50' : ''}`}>
                       <div className="mt-0.5">{getIcon(n.type)}</div>
                       <div className="flex-1">
                         <p className={`text-sm ${!n.is_read ? 'font-bold text-text_primary' : 'font-medium text-text_secondary'}`}>{n.title}</p>
@@ -96,7 +96,7 @@ export default function NotificationCenter() {
                         </p>
                       </div>
                       {!n.is_read && (
-                        <button onClick={() => handleMarkRead(n.id)} className="h-6 w-6 rounded-full hover:bg-background flex items-center justify-center text-text_secondary hover:text-primary transition-colors flex-shrink-0">
+                        <button onClick={() => handleMarkRead(n.id)} className="h-6 w-6 rounded-full hover:bg-background flex items-center justify-center text-text_secondary hover:text-navy-800 transition-colors flex-shrink-0">
                           <Check className="h-3 w-3" />
                         </button>
                       )}

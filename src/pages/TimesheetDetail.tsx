@@ -144,9 +144,9 @@ export default function TimesheetDetail() {
     return 'Work';
   };
   const dayStatusTone = (leaveType?: string) => {
-    if (leaveType === 'annual_leave') return 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300';
-    if (leaveType === 'sick_leave') return 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300';
-    return 'border-border bg-surface text-text_secondary hover:border-primary/30 hover:text-primary';
+    if (leaveType === 'annual_leave') return 'border-warning/20 bg-warning-bg text-warning dark:border-warning/20  ';
+    if (leaveType === 'sick_leave') return 'border-gold-500/30 bg-gold-100 text-gold-600 dark: dark:bg-gold-100 ';
+    return 'border-border bg-surface text-text_secondary hover:border-navy-800/30 hover:text-navy-800';
   };
 
   const calcProjectTotal = (projectId: string) => Object.values(gridData[projectId] || {}).reduce((s, h) => s + h, 0);
@@ -260,7 +260,7 @@ export default function TimesheetDetail() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-[60vh]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-navy-800" />
         </div>
       </DashboardLayout>
     );
@@ -281,10 +281,10 @@ export default function TimesheetDetail() {
                   Weekly Log
                 </h1>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider border
-                  ${timesheetStatus === 'approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                    timesheetStatus === 'submitted' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                    timesheetStatus === 'rejected' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                    'bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'}`}>
+                  ${timesheetStatus === 'approved' ? 'bg-success/10 text-success border-success/20' :
+                    timesheetStatus === 'submitted' ? 'bg-navy-100 text-navy-700 border-teal-300' :
+                    timesheetStatus === 'rejected' ? 'bg-danger/10 text-danger border-danger/20' :
+                    'bg-gray-100 text-gray-500 border-gray-200   '}`}>
                   {timesheetStatus}
                 </span>
               </div>
@@ -298,19 +298,19 @@ export default function TimesheetDetail() {
           <div className="flex items-center gap-3">
             {canWithdraw && (
               <button onClick={handleWithdraw}
-                className="flex items-center gap-2 px-4 py-2 border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400 rounded-lg text-sm font-semibold hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-all">
+                className="flex items-center gap-2 px-4 py-2 border border-warning/40 bg-warning-bg text-warning dark:border-warning/30   rounded-lg text-sm font-semibold hover:bg-warning-bg  transition-all">
                 <RotateCcw className="h-4 w-4" /> Withdraw &amp; Edit
               </button>
             )}
             {!isLocked && (
               <>
                 <button onClick={handleSave} disabled={isSaving}
-                  className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm font-medium text-text_primary hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all disabled:opacity-50">
+                  className="flex items-center gap-2 px-4 py-2 bg-surface border border-border rounded-lg text-sm font-medium text-text_primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-all disabled:opacity-50">
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                   {isSaving ? 'Saving...' : 'Save Draft'}
                 </button>
                 <button onClick={handleSubmitWeek}
-                  className="flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary_dark text-white rounded-lg text-sm font-semibold transition-all shadow-lg shadow-primary/20">
+                  className="flex items-center gap-2 px-5 py-2 bg-navy-800 hover:bg-primary_dark text-white rounded-lg text-sm font-semibold transition-all shadow-lg shadow-navy-900/20">
                   <Send className="h-4 w-4" /> Submit Week
                 </button>
               </>
@@ -322,13 +322,13 @@ export default function TimesheetDetail() {
         <AnimatePresence>
           {successMsg && (
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-              className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3 text-emerald-500">
+              className="mb-6 p-4 bg-success/10 border border-success/20 rounded-xl flex items-center gap-3 text-success">
               <CheckCircle2 className="h-5 w-5" /> <span className="text-sm font-medium">{successMsg}</span>
             </motion.div>
           )}
           {errorMsg && (
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-              className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500">
+              className="mb-6 p-4 bg-danger/10 border border-danger/20 rounded-xl flex items-center gap-3 text-danger">
               <AlertCircle className="h-5 w-5" /> <span className="text-sm font-medium">{errorMsg}</span>
             </motion.div>
           )}
@@ -337,7 +337,7 @@ export default function TimesheetDetail() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/45 p-4 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/45 p-4 backdrop-blur-sm"
               onClick={() => setDayEditor(null)}
             >
               <motion.div
@@ -349,7 +349,7 @@ export default function TimesheetDetail() {
               >
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-primary">Day status</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-navy-800">Day status</p>
                     <h3 className="mt-1 text-lg font-bold text-text_primary">{dayEditor.label}</h3>
                     <p className="mt-1 text-sm text-text_secondary">Choose how this day should appear on the timesheet and approval screens.</p>
                   </div>
@@ -397,13 +397,13 @@ export default function TimesheetDetail() {
 
                     return (
                       <th key={i} className={`p-3 text-center border-l border-border/50 relative group/h min-w-[80px]
-                        ${holiday ? 'bg-purple-500/5' : leaveType ? 'bg-amber-500/5' : weekend ? 'bg-zinc-100/50 dark:bg-zinc-800/30' : ''}`}>
+                        ${holiday ? 'bg-gold-100' : leaveType ? 'bg-warning/5' : weekend ? 'bg-gray-100/50 /30' : ''}`}>
                         <div className="text-xs uppercase tracking-wider text-text_secondary font-bold">{day}</div>
                         <div className="text-sm text-text_primary mt-0.5">{days[i]?.getDate()}</div>
                         {/* Filled indicator */}
-                        <div className={`h-1.5 w-1.5 rounded-full mx-auto mt-1 ${filled ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'}`} />
-                        {holiday && <div className="text-[7px] text-purple-500 font-bold uppercase mt-0.5 truncate px-1">{holiday}</div>}
-                        {leaveType && <div className={`text-[7px] font-bold uppercase mt-0.5 ${leaveType === 'annual_leave' ? 'text-amber-500' : 'text-orange-500'}`}>{leaveType.replace('_', ' ')}</div>}
+                        <div className={`h-1.5 w-1.5 rounded-full mx-auto mt-1 ${filled ? 'bg-success' : 'bg-gray-300 '}`} />
+                        {holiday && <div className="text-[7px] text-gold-600 font-bold uppercase mt-0.5 truncate px-1">{holiday}</div>}
+                        {leaveType && <div className={`text-[7px] font-bold uppercase mt-0.5 ${leaveType === 'annual_leave' ? 'text-warning' : 'text-gold-600'}`}>{leaveType.replace('_', ' ')}</div>}
 
                         {!isLocked && !holiday && (
                           <button
@@ -429,11 +429,11 @@ export default function TimesheetDetail() {
                     <td className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-sm font-bold text-text_primary group-hover:text-primary transition-colors">{project.name}</span>
+                          <span className="text-sm font-bold text-text_primary group-hover:text-navy-800 transition-colors">{project.name}</span>
                           <span className="text-xs text-text_secondary ml-2">{project.code}</span>
                         </div>
                         {!isLocked && selectedProjects.length > 1 && (
-                          <button onClick={() => removeProjectRow(project.id)} className="opacity-0 group-hover:opacity-100 text-text_secondary hover:text-red-500 transition-all">
+                          <button onClick={() => removeProjectRow(project.id)} className="opacity-0 group-hover:opacity-100 text-text_secondary hover:text-danger transition-all">
                             <X className="h-3.5 w-3.5" />
                           </button>
                         )}
@@ -447,7 +447,7 @@ export default function TimesheetDetail() {
                       const weekend = isWeekend(dIdx);
 
                       return (
-                        <td key={dIdx} className={`p-1 border-l border-border/30 ${disabled ? 'bg-background/40' : weekend ? 'bg-zinc-50/50 dark:bg-zinc-800/20' : ''}`}>
+                        <td key={dIdx} className={`p-1 border-l border-border/30 ${disabled ? 'bg-background/40' : weekend ? 'bg-gray-50/50 /20' : ''}`}>
                           <input
                             type="number"
                             min="0" max="24" step="0.5"
@@ -455,7 +455,7 @@ export default function TimesheetDetail() {
                             onChange={(e) => handleHourChange(project.id, dateStr, e.target.value)}
                             disabled={disabled}
                             placeholder={disabled ? '-' : '0'}
-                            className="w-full bg-transparent text-center py-2 text-sm text-text_primary focus:bg-primary/5 focus:outline-none focus:ring-1 focus:ring-primary/30 rounded transition-all placeholder:text-text_secondary/30 disabled:opacity-30"
+                            className="w-full bg-transparent text-center py-2 text-sm text-text_primary focus:bg-navy-50 focus:outline-none focus:ring-1 focus:ring-navy-800/30 rounded transition-all placeholder:text-text_secondary/30 disabled:opacity-30"
                           />
                         </td>
                       );
@@ -477,10 +477,10 @@ export default function TimesheetDetail() {
                       </td>
                     );
                   })}
-                  <td className="p-3 text-center border-l border-border bg-primary/10">
+                  <td className="p-3 text-center border-l border-border bg-navy-50">
                     <div className="flex flex-col items-center">
-                      <span className="text-xs text-primary uppercase">Grand Total</span>
-                      <span className="text-lg text-primary font-bold">{calcGrandTotal()}h</span>
+                      <span className="text-xs text-navy-800 uppercase">Grand Total</span>
+                      <span className="text-lg text-navy-800 font-bold">{calcGrandTotal()}h</span>
                     </div>
                   </td>
                 </tr>
@@ -501,7 +501,7 @@ export default function TimesheetDetail() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {projects.filter(p => !selectedProjects.find(sp => sp.id === p.id)).map(p => (
                     <button key={p.id} onClick={() => addProjectRow(p)}
-                      className="text-left p-3 border border-border rounded-lg hover:border-primary/30 hover:bg-primary/5 transition-all">
+                      className="text-left p-3 border border-border rounded-lg hover:border-navy-800/30 hover:bg-navy-50 transition-all">
                       <p className="text-sm font-semibold text-text_primary">{p.name}</p>
                       <p className="text-[10px] text-text_secondary">{p.code} • Max {p.max_hours_per_week}h/wk</p>
                     </button>
@@ -510,7 +510,7 @@ export default function TimesheetDetail() {
               </div>
             ) : (
               <button onClick={() => setShowAddProject(true)}
-                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary_dark transition-colors">
+                className="flex items-center gap-2 text-sm font-semibold text-navy-800 hover:text-primary_dark transition-colors">
                 <Plus className="h-4 w-4" /> Add Project Row
               </button>
             )}
@@ -522,12 +522,12 @@ export default function TimesheetDetail() {
           <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-text_secondary uppercase tracking-wider">Week Progress</span>
-              <Clock className="h-4 w-4 text-primary" />
+              <Clock className="h-4 w-4 text-navy-800" />
             </div>
             <div className="text-2xl font-bold text-text_primary mb-2">{calcGrandTotal()} / 40h</div>
             <div className="w-full bg-background rounded-full h-1.5 overflow-hidden">
               <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((calcGrandTotal() / 40) * 100, 100)}%` }}
-                className="h-full bg-primary" />
+                className="h-full bg-navy-800" />
             </div>
           </div>
           <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
@@ -540,7 +540,7 @@ export default function TimesheetDetail() {
           <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-text_secondary uppercase tracking-wider">Status</span>
-              {isLocked ? <Lock className="h-4 w-4 text-amber-500" /> : <Unlock className="h-4 w-4 text-emerald-500" />}
+              {isLocked ? <Lock className="h-4 w-4 text-warning" /> : <Unlock className="h-4 w-4 text-success" />}
             </div>
             <div className="text-lg font-bold text-text_primary">{isLocked ? 'Locked' : 'Editable'}</div>
             <p className="text-xs text-text_secondary mt-1">{isLocked ? 'This week has been approved.' : 'Submit to lock for approval.'}</p>

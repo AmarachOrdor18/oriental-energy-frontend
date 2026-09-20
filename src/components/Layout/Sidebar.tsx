@@ -1,134 +1,248 @@
+import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import {
   LayoutDashboard, Users, Settings, LogOut,
-  BarChart3, Inbox, User, Sun, Moon, FileText, Calendar, PieChart
+  BarChart3, Inbox, FileText, Calendar, PieChart,
+  PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
-import { useLocation } from 'wouter';
-import { useEffect, useState } from 'react';
 import { useAuth } from '../../lib/auth';
 
-export default function Sidebar() {
-  const [location, setLocation] = useLocation();
-  const { user, logout } = useAuth();
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved ? saved === 'dark' : false;
-  });
+interface NavItemDef {
+  label: string;
+  path: string;
+  icon: any;
+  match: (loc: string) => boolean;
+}
 
-  useEffect(() => {
-    if (isDark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); }
-    else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
-  }, [isDark]);
+interface NavGroupDef {
+  label: string;
+  items: NavItemDef[];
+}
+
+export default function Sidebar() {
+  const [location] = useLocation();
+  const { user, logout } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const role = user?.role || 'user';
-  const userName = user?.name || 'Guest';
 
-  const NavItem = ({ icon: Icon, label, path, active }: any) => (
-    <button
-      onClick={() => setLocation(path)}
-      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group
-        ${active ? 'bg-white/10 text-white shadow-sm' : 'text-white/70 hover:text-white hover:bg-sidebar_hover'}`}
-    >
-      <div className="flex items-center gap-3">
-        <Icon className={`h-4 w-4 transition-colors ${active ? 'text-accent' : 'text-white/60 group-hover:text-white'}`} />
-        <span className="text-sm font-semibold">{label}</span>
-      </div>
-      {active && <div className="h-5 w-1 rounded-full bg-accent" />}
-    </button>
-  );
+  /* Grouped nav — Oriental Energy's own information architecture */
+  const navGroups: NavGroupDef[] = [
+    {
+      label: 'Workspace',
+      items: [
+        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, match: (l) => l === '/' || l === '/dashboard' },
+        { label: 'Daily Logging', path: '/daily-logging', icon: Calendar, match: (l) => l.startsWith('/daily-logging') },
+        { label: 'Submissions', path: '/submissions', icon: FileText, match: (l) => l.startsWith('/submissions') },
+      ],
+    },
+    {
+      label: 'Approvals',
+      items: [
+        { label: 'Team Members', path: '/team', icon: Users, match: (l) => l.startsWith('/team') },
+        { label: 'Review Queue', path: '/approvals', icon: Inbox, match: (l) => l.startsWith('/approvals') },
+      ],
+    },
+    {
+      label: 'Finance',
+      items: [
+        { label: 'Finance Review', path: '/finance', icon: BarChart3, match: (l) => l.startsWith('/finance') },
+      ],
+    },
+    {
+      label: 'Reporting',
+      items: [
+        { label: 'Reports', path: '/reports', icon: PieChart, match: (l) => l.startsWith('/reports') },
+      ],
+    },
+    {
+      label: 'Control',
+      items: [
+        { label: 'Administration', path: '/admin', icon: Settings, match: (l) => l.startsWith('/admin') },
+      ],
+    },
+  ];
+
+  const roleAllows = (group: NavGroupDef) => {
+    switch (group.label) {
+      case 'Approvals': return ['line_manager', 'hod', 'admin'].includes(role);
+      case 'Finance': return ['finance', 'admin'].includes(role);
+      case 'Reporting': return ['finance', 'admin', 'line_manager', 'hod'].includes(role);
+      case 'Control': return role === 'admin';
+      default: return true;
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
     setLocation('/login');
   };
 
+  const [, setLocation] = useLocation();
+
+  const applyCollapseClass = (collapsed: boolean) => {
+    document.documentElement.classList.toggle('sidebar-collapsed', collapsed);
+  };
+
+  useEffect(() => { applyCollapseClass(isCollapsed); }, [isCollapsed]);
+
   return (
-    <aside className="w-64 bg-sidebar h-screen flex flex-col fixed left-0 top-0 z-50 text-white shadow-[16px_0_40px_-28px_rgba(3,30,24,0.75)]">
-      <div className="px-5 pt-6 pb-6">
-        <img
-          src="/oriental-logo.jpg"
-          alt="Oriental Energy Resources Limited"
-          className="h-20 w-auto rounded-lg"
-        />
-
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 space-y-6 custom-scrollbar">
-        <div>
-          <label className="px-3 text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-3 block">Workspace</label>
-          <div className="space-y-1">
-            <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" active={location === '/dashboard' || location === '/'} />
-            <NavItem icon={Calendar} label="Daily Logging" path="/daily-logging" active={location.startsWith('/daily-logging')} />
-            <NavItem icon={FileText} label="Submissions" path="/submissions" active={location === '/submissions'} />
-          </div>
-        </div>
-
-        {(role === 'line_manager' || role === 'hod' || role === 'admin') && (
-          <div>
-            <label className="px-3 text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-3 block">Approvals</label>
-            <div className="space-y-1">
-              <NavItem icon={Users} label="Team Members" path="/team" active={location.startsWith('/team')} />
-              <NavItem icon={Inbox} label="Review Queue" path="/approvals" active={location === '/approvals'} />
-            </div>
-          </div>
-        )}
-
-        {(role === 'finance' || role === 'admin') && (
-          <div>
-            <label className="px-3 text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-3 block">Finance</label>
-            <div className="space-y-1">
-              <NavItem icon={BarChart3} label="Finance Review" path="/finance" active={location === '/finance'} />
-            </div>
-          </div>
-        )}
-
-        {(role === 'finance' || role === 'admin' || role === 'line_manager' || role === 'hod') && (
-          <div>
-            <label className="px-3 text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-3 block">Reporting</label>
-            <div className="space-y-1">
-              <NavItem icon={PieChart} label="Reports" path="/reports" active={location === '/reports'} />
-            </div>
-          </div>
-        )}
-
-        {role === 'admin' && (
-          <div>
-            <label className="px-3 text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-3 block">Control</label>
-            <div className="space-y-1">
-              <NavItem icon={Settings} label="Administration" path="/admin" active={location === '/admin'} />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="p-4 border-t border-white/10 space-y-2">
-        <button
-          onClick={() => setIsDark(!isDark)}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-white/70 hover:text-white hover:bg-sidebar_hover transition-all"
+    <aside
+      className={`bg-navy-900 text-white flex flex-col flex-shrink-0 fixed left-0 z-50 shadow-xl transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-14 h-screen top-0 bottom-auto' : 'w-64 h-screen top-0'
+      }`}
+    >
+      {/* Brand + collapse */}
+      <div className="h-16 flex items-center justify-between px-4 border-b border-navy-800 shrink-0">
+        {!isCollapsed ? (
+          <img src="/oriental-logo.jpg" alt="Oriental Energy" className="h-10 w-auto rounded" />
+        ) : (
+          <div className="w-9 h-9 rounded-lg bg-gold-500 flex items-center justify-center font-bold text-navy-900 text-sm">O</div>
+        )}          <button
+          onClick={() => setIsCollapsed((prev) => !prev)}
+          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="p-1.5 text-gray-400 hover:text-white hover:bg-navy-800 rounded-lg transition-colors"
         >
-          <div className="flex items-center gap-3">
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            <span className="text-xs font-medium">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-          </div>
-        </button>
-
-        <div className="flex items-center gap-3 px-3 py-3 rounded-lg bg-white/10 border border-white/10">
-          <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-            <User className="h-4 w-4 text-sidebar" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-white truncate">{userName}</p>
-            <p className="text-[10px] text-white/50 font-medium truncate">{role.replace('_', ' ')}</p>
-          </div>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all text-xs font-semibold"
-        >
-          <LogOut className="h-4 w-4" />
-          Sign Out
+          {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
         </button>
       </div>
+
+      {isCollapsed ? (
+        /* Collapsed → icon rail with bottom strip */
+        <>
+          {/* Icon rail */}
+          <div className="flex-1 overflow-y-auto py-4 custom-scrollbar overflow-x-hidden scrollbar-hide">
+            {navGroups.filter(roleAllows).map((group) => (
+              <div key={group.label} className="mb-2">
+                {!isCollapsed ? (
+                  <h2 className="nav-group-label">{group.label}</h2>
+                ) : (
+                  <div className="px-4 mb-2 opacity-20" />
+                )}
+                <ul>
+                  {group.items.map((item) => {
+                    const isActive = item.match(location);
+                    return (
+                      <li key={item.label} title={item.label}>
+                        <button
+                          onClick={() => setLocation(item.path)}
+                          className={`flex w-full items-center justify-center py-2.5 transition-all duration-200 border-l-[3px] ${
+                            isActive
+                              ? 'bg-navy-700 border-gold-500 text-white shadow-inner'
+                              : 'border-transparent text-gray-400 hover:bg-navy-800 hover:text-white'
+                          }`}
+                        >
+                          <item.icon
+                            className={`w-4 h-4 transition-transform ${
+                              isActive ? 'text-gold-500 scale-110' : ''
+                            }`}
+                          />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom panel: nav labels + logout, pinned under the rail */}
+          <div className="flex flex-col items-start p-2 border-t border-navy-700 bg-navy-950 w-56 rounded-t-xl mt-auto">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-medium text-gray-400 mb-2">
+              {navGroups.filter(roleAllows).flatMap((g) =>
+                g.items.map((item) => (
+                  <span
+                    key={item.label}
+                    className={`truncate max-w-[120px] ${
+                      item.match(location) ? 'text-white font-bold' : ''
+                    }`}
+                    title={item.label}
+                  >
+                    {item.label}
+                  </span>
+                ))
+              )}
+            </div>
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-navy-800 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </>
+      ) : (
+        /* Expanded → normal sidebar */
+        <>
+          {/* Nav */}
+          <div className="flex-1 overflow-y-auto py-4 custom-scrollbar overflow-x-hidden scrollbar-hide">
+            {navGroups.filter(roleAllows).map((group) => (
+              <div key={group.label} className="mb-6">
+                {!isCollapsed ? (
+                  <h2 className="nav-group-label">{group.label}</h2>
+                ) : (
+                  <div className="px-6 mb-3 border-b border-navy-800 opacity-20" />
+                )}
+                <ul>
+                  {group.items.map((item) => {
+                    const isActive = item.match(location);
+                    return (
+                      <li key={item.label} title={isCollapsed ? item.label : ''}>
+                        <button
+                          onClick={() => setLocation(item.path)}
+                          className={`flex w-full items-center py-2.5 transition-all duration-200 border-l-[3px] ${
+                            isCollapsed ? 'justify-center px-0' : 'px-6'
+                          } ${
+                            isActive
+                              ? 'bg-navy-700 border-gold-500 text-white shadow-inner'
+                              : 'border-transparent text-gray-400 hover:bg-navy-800 hover:text-white'
+                          }`}
+                        >
+                          <item.icon
+                            className={`w-4 h-4 transition-transform ${!isCollapsed ? 'mr-3' : ''} ${
+                              isActive ? 'text-gold-500 scale-110' : ''
+                            }`}
+                          />
+                          {!isCollapsed && (
+                            <span className="text-[13px] font-medium tracking-tight truncate">{item.label}</span>
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer: logout */}
+          <div className="p-4 border-t border-navy-700 bg-navy-950">
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:text-white hover:bg-navy-800 transition-all w-full"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-[13px] font-medium">Sign Out</span>
+            </button>
+          </div>
+        </>
+      )}
     </aside>
   );
+}
+
+/* Breadcrumb bar lives in Header via shared logic */
+export { breadcrumbsFor };
+function breadcrumbsFor(location: string) {
+  const pathParts = location.split('/').filter((p) => p !== '');
+  return [
+    { label: 'Home', path: '/dashboard' },
+    ...pathParts.map((part, i) => ({
+      label: part.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      path: '/' + pathParts.slice(0, i + 1).join('/'),
+    })),
+  ];
 }

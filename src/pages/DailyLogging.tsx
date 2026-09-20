@@ -496,7 +496,7 @@ export default function DailyLogging() {
             <select
               value={selectedWeekStart}
               onChange={e => setSelectedWeekStart(e.target.value)}
-              className="bg-surface border border-border text-text_primary text-sm font-semibold px-3 py-2.5 rounded-xl outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              className="bg-surface border border-border text-text_primary text-sm font-semibold px-3 py-2.5 rounded-xl outline-none focus:border-navy-800 focus:ring-2 focus:ring-navy-800/20 transition-all"
             >
               {weeksInMonth.map(ws => {
                 const s = parseDateKey(ws);
@@ -526,7 +526,7 @@ export default function DailyLogging() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className={`mb-5 p-4 rounded-xl flex items-start gap-3 border ${submitMsg.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}
+              className={`mb-5 p-4 rounded-xl flex items-start gap-3 border ${submitMsg.type === 'success' ? 'bg-success/10 border-success/20 text-success' : 'bg-danger/10 border-danger/20 text-danger'}`}
             >
               {submitMsg.type === 'success' ? <CheckCircle2 className="h-5 w-5 mt-0.5 flex-shrink-0" /> : <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />}
               <p className="text-sm font-semibold">{submitMsg.text}</p>
@@ -541,14 +541,14 @@ export default function DailyLogging() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-5 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-start gap-3"
+              className="mb-5 p-4 bg-gold-500/10 border border-gold-500/30 rounded-xl flex items-start gap-3"
             >
-              <AlertTriangle className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="h-5 w-5 text-gold-600 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">
+                <p className="text-sm font-semibold text-gold-600 dark:text-gold-600">
                   {incompleteDays.length} day{incompleteDays.length > 1 ? 's' : ''} with incomplete hours this month
                 </p>
-                <p className="text-xs text-orange-500/80 mt-0.5">
+                <p className="text-xs text-gold-600/80 mt-0.5">
                   {incompleteDays.slice(0, 5).map(d => d.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })).join(', ')}
                   {incompleteDays.length > 5 ? ` and ${incompleteDays.length - 5} more` : ''}
                   {' - '}click on a flagged day to fill it in.
@@ -582,19 +582,19 @@ export default function DailyLogging() {
 
             <div className="flex items-center gap-3 text-[11px] font-semibold">
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-success"></div>
                 <span className="text-text_secondary">Logged</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-warning"></div>
                 <span className="text-text_secondary">Incomplete</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-gold-500"></div>
                   <span className="text-text_secondary">Leave</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-danger"></div>
                 <span className="text-text_secondary">Missing</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -637,9 +637,9 @@ export default function DailyLogging() {
                     borderClass = 'border-border/30';
                     break;
                   case 'holiday':
-                    bgClass = 'bg-purple-500/10';
-                    textClass = 'text-purple-500';
-                    borderClass = 'border-purple-500/20';
+                    bgClass = 'bg-gold-100';
+                    textClass = 'text-gold-600';
+                    borderClass = 'border-gold-500/30';
                     break;
                   case 'loading':
                     bgClass = 'bg-background';
@@ -652,33 +652,33 @@ export default function DailyLogging() {
                     borderClass = 'border-border/50';
                     break;
                   case 'missed':
-                    bgClass = 'bg-red-500';
+                    bgClass = 'bg-danger';
                     textClass = 'text-white';
                     borderClass = 'border-red-500';
                     isClickable = true;
                     break;
                   case 'logged':
-                    bgClass = 'bg-emerald-500';
+                    bgClass = 'bg-success';
                     textClass = 'text-white';
-                    borderClass = 'border-emerald-500';
+                    borderClass = 'border-success';
                     isClickable = true;
                     break;
                   case 'incomplete':
-                    bgClass = 'bg-amber-500';
+                    bgClass = 'bg-warning';
                     textClass = 'text-white';
-                    borderClass = 'border-amber-500';
+                    borderClass = 'border-warning';
                     isClickable = true;
                     break;
                   case 'leave':
-                    bgClass = 'bg-orange-500';
+                    bgClass = 'bg-gold-500';
                     textClass = 'text-white';
-                    borderClass = 'border-orange-500';
+                    borderClass = 'border-gold-500';
                     isClickable = true;
                     break;
                   case 'not_logged':
-                    bgClass = 'bg-background hover:bg-primary/5';
+                    bgClass = 'bg-background hover:bg-navy-50';
                     textClass = 'text-text_primary';
-                    borderClass = 'border-border hover:border-primary/40';
+                    borderClass = 'border-border hover:border-navy-800/40';
                     isClickable = true;
                     break;
                 }
@@ -691,10 +691,10 @@ export default function DailyLogging() {
                     whileHover={isClickable ? { scale: 0.97 } : {}}
                     whileTap={isClickable ? { scale: 0.95 } : {}}
                     onClick={() => isClickable && handleDayClick(dayObj)}
-                    className={`min-h-[60px] rounded-lg border p-1.5 flex flex-col transition-all duration-150 ${bgClass} ${borderClass} ${isClickable ? 'cursor-pointer' : 'cursor-default'} ${isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-surface' : ''}`}
+                    className={`min-h-[60px] rounded-lg border p-1.5 flex flex-col transition-all duration-150 ${bgClass} ${borderClass} ${isClickable ? 'cursor-pointer' : 'cursor-default'} ${isToday ? 'ring-2 ring-navy-800 ring-offset-1 ring-offset-surface' : ''}`}
                   >
                     <div className="flex justify-between items-start">
-                      <span className={`text-xs font-bold ${textClass} ${isToday && status === 'not_logged' ? '!text-primary' : ''}`}>
+                      <span className={`text-xs font-bold ${textClass} ${isToday && status === 'not_logged' ? '!text-navy-800' : ''}`}>
                         {dayObj.day}
                       </span>
                       {status === 'logged' && <CheckCircle className="h-3 w-3 opacity-80 text-white" />}
@@ -781,9 +781,9 @@ export default function DailyLogging() {
               {/* Project Rows */}
               <div className="p-6 space-y-3 max-h-[50vh] overflow-y-auto">
                 {dayMode !== 'work' ? (
-                  <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-5 text-center">
-                    <p className="text-sm font-bold text-amber-600 dark:text-amber-300 mb-1">{getLeaveLabel(dayMode)} recorded</p>
-                    <p className="text-xs text-amber-600/70 dark:text-amber-300/70">This day will be marked as {getLeaveLabel(dayMode).toLowerCase()}. No hours entry is required.</p>
+                  <div className="rounded-xl border border-warning/20 bg-warning-bg p-5 text-center">
+                    <p className="text-sm font-bold text-warning dark: mb-1">{getLeaveLabel(dayMode)} recorded</p>
+                    <p className="text-xs text-warning/70 dark:/70">This day will be marked as {getLeaveLabel(dayMode).toLowerCase()}. No hours entry is required.</p>
                   </div>
                 ) : (
                   <>
@@ -792,7 +792,7 @@ export default function DailyLogging() {
                         {modalRows.length > 1 && (
                           <button
                             onClick={() => removeRow(idx)}
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 rounded-lg text-text_secondary hover:text-red-500 hover:bg-red-500/10 transition-all"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 rounded-lg text-text_secondary hover:text-danger hover:bg-danger/10 transition-all"
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
@@ -801,11 +801,11 @@ export default function DailyLogging() {
                         <div className="space-y-1">
                           <label className="block text-[10px] font-bold text-text_secondary uppercase tracking-widest">Project</label>
                           <div className="relative">
-                            <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary" />
+                            <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-navy-800" />
                             <select
                               value={row.project_id}
                               onChange={(e) => updateRow(idx, 'project_id', e.target.value)}
-                              className="w-full bg-surface border border-border rounded-lg pl-9 pr-4 py-2 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all font-semibold appearance-none cursor-pointer"
+                              className="w-full bg-surface border border-border rounded-lg pl-9 pr-4 py-2 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-2 focus:ring-navy-800/10 transition-all font-semibold appearance-none cursor-pointer"
                             >
                               <option value="">Select project...</option>
                               {projects.map(p => {
@@ -826,7 +826,7 @@ export default function DailyLogging() {
                             <select
                               value={row.activity_id || ''}
                               onChange={(e) => updateRow(idx, 'activity_id', e.target.value || undefined)}
-                              className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all appearance-none cursor-pointer"
+                              className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-2 focus:ring-navy-800/10 transition-all appearance-none cursor-pointer"
                             >
                               <option value="">Select activity (optional)…</option>
                               {activitiesByProject[row.project_id].map(a => (
@@ -847,7 +847,7 @@ export default function DailyLogging() {
                               value={row.hours || ''}
                               onChange={(e) => updateRow(idx, 'hours', parseFloat(e.target.value) || 0)}
                               placeholder="0.0"
-                              className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all font-bold"
+                              className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-2 focus:ring-navy-800/10 transition-all font-bold"
                             />
                           </div>
                           <div className="space-y-1">
@@ -857,7 +857,7 @@ export default function DailyLogging() {
                               value={row.notes}
                               onChange={(e) => updateRow(idx, 'notes', e.target.value)}
                               placeholder="Optional..."
-                              className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all font-medium"
+                              className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:border-navy-800 focus:ring-2 focus:ring-navy-800/10 transition-all font-medium"
                             />
                           </div>
                         </div>
@@ -866,7 +866,7 @@ export default function DailyLogging() {
 
                     <button
                       onClick={addRow}
-                      className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary_dark transition-colors w-full justify-center py-2 border border-dashed border-primary/30 rounded-xl hover:bg-primary/5"
+                      className="flex items-center gap-2 text-sm font-semibold text-navy-800 hover:text-primary_dark transition-colors w-full justify-center py-2 border border-dashed border-navy-800/30 rounded-xl hover:bg-navy-50"
                     >
                       <Plus className="h-4 w-4" /> Add Another Project
                     </button>
@@ -880,16 +880,16 @@ export default function DailyLogging() {
                   {dayMode === 'work' ? (
                     <>
                       <span className="text-sm font-bold text-text_primary">
-                        Total: <span className={`${modalTotal >= 8 ? 'text-emerald-500' : modalTotal > 0 ? 'text-amber-500' : 'text-text_secondary'}`}>{modalTotal}h</span>
+                        Total: <span className={`${modalTotal >= 8 ? 'text-success' : modalTotal > 0 ? 'text-warning' : 'text-text_secondary'}`}>{modalTotal}h</span>
                       </span>
                       {modalTotal > 0 && modalTotal < 8 && (
-                        <span className="text-xs text-amber-500 font-medium flex items-center gap-1">
+                        <span className="text-xs text-warning font-medium flex items-center gap-1">
                           <AlertTriangle className="h-3 w-3" /> Below 8h minimum
                         </span>
                       )}
                     </>
                   ) : (
-                    <span className="text-sm font-semibold text-orange-500">{getLeaveLabel(dayMode)}</span>
+                    <span className="text-sm font-semibold text-gold-600">{getLeaveLabel(dayMode)}</span>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
@@ -925,7 +925,7 @@ export default function DailyLogging() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className={`px-6 py-2 text-center text-sm font-semibold ${saveMsg === 'Saved!' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}
+                    className={`px-6 py-2 text-center text-sm font-semibold ${saveMsg === 'Saved!' ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}
                   >
                     {saveMsg}
                   </motion.div>

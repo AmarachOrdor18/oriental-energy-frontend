@@ -182,7 +182,7 @@ export default function Admin() {
     finally { setUnlockingId(null); }
   };
 
-  const inputCls = "w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:ring-2 focus:ring-primary/20";
+  const inputCls = "w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:ring-2 focus:ring-navy-800/20";
   const selectCls = inputCls;
   const filteredUsers = users.filter(u =>
     u.name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase())
@@ -203,7 +203,7 @@ export default function Admin() {
   if (isLoading) return (
     <DashboardLayout>
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-navy-800" />
       </div>
     </DashboardLayout>
   );
@@ -213,8 +213,8 @@ export default function Admin() {
       <div className="max-w-7xl mx-auto pb-12">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-text_primary">Administration</h1>
-            <p className="text-sm text-text_secondary mt-1">System configuration, oversight, and controls.</p>
+            <h1 className="page-header-title">Administration</h1>
+            <p className="page-header-sub">System configuration, oversight, and controls.</p>
           </div>
         </div>
 
@@ -222,10 +222,10 @@ export default function Admin() {
         {health && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[
-              { label: 'Active users', value: health.total_active_users, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-              { label: 'Open periods', value: health.open_periods, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-              { label: 'Pending approvals', value: health.pending_approvals_org, color: health.pending_approvals_org > 0 ? 'text-amber-500' : 'text-text_secondary', bg: health.pending_approvals_org > 0 ? 'bg-amber-500/10' : 'bg-background' },
-              { label: 'Finance queue depth', value: health.finance_review_queue_depth, color: health.finance_review_queue_depth > 0 ? 'text-red-500' : 'text-text_secondary', bg: health.finance_review_queue_depth > 0 ? 'bg-red-500/10' : 'bg-background' },
+              { label: 'Active users', value: health.total_active_users, color: 'text-success', bg: 'bg-success/10' },
+              { label: 'Open periods', value: health.open_periods, color: 'text-navy-700', bg: 'bg-navy-100' },
+              { label: 'Pending approvals', value: health.pending_approvals_org, color: health.pending_approvals_org > 0 ? 'text-warning' : 'text-text_secondary', bg: health.pending_approvals_org > 0 ? 'bg-warning/10' : 'bg-background' },
+              { label: 'Finance queue depth', value: health.finance_review_queue_depth, color: health.finance_review_queue_depth > 0 ? 'text-danger' : 'text-text_secondary', bg: health.finance_review_queue_depth > 0 ? 'bg-danger/10' : 'bg-background' },
             ].map(item => (
               <div key={item.label} className={`rounded-xl border border-border p-4 ${item.bg}`}>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-text_secondary">{item.label}</p>
@@ -240,7 +240,7 @@ export default function Admin() {
           {tabs.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap
-                ${activeTab === t.key ? 'bg-surface text-primary shadow-sm' : 'text-text_secondary hover:text-text_primary'}`}>
+                ${activeTab === t.key ? 'bg-surface text-navy-800 shadow-sm' : 'text-text_secondary hover:text-text_primary'}`}>
               <t.icon className="h-3.5 w-3.5" /> {t.label}
             </button>
           ))}
@@ -255,14 +255,14 @@ export default function Admin() {
                 <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text_secondary" />
                   <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search users..."
-                    className="w-full bg-surface border border-border rounded-xl pl-10 pr-4 py-2 text-sm text-text_primary focus:outline-none focus:ring-1 focus:ring-primary/20" />
+                    className="w-full bg-surface border border-border rounded-xl pl-10 pr-4 py-2 text-sm text-text_primary focus:outline-none focus:ring-1 focus:ring-navy-800/20" />
                 </div>
-                <button onClick={() => setShowNewUser(true)} className="bg-primary text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-primary/20">
+                <button onClick={() => setShowNewUser(true)} className="bg-navy-800 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-navy-900/20">
                   <Plus className="h-4 w-4" /> Add User
                 </button>
               </div>
               {showNewUser && (
-                <div className="p-5 border-b border-border bg-primary/5 space-y-4">
+                <div className="p-5 border-b border-border bg-navy-50 space-y-4">
                   <h3 className="text-sm font-bold text-text_primary">New User</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input placeholder="Full Name" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} className={inputCls} />
@@ -285,7 +285,7 @@ export default function Admin() {
                     </label>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={handleCreateUser} disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                    <button onClick={handleCreateUser} disabled={saving} className="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
                       {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Create
                     </button>
                     <button onClick={() => setShowNewUser(false)} className="px-4 py-2 text-sm text-text_secondary hover:text-text_primary">Cancel</button>
@@ -328,7 +328,7 @@ export default function Admin() {
                         </div>
                       </div>
                       <div className="flex gap-3">
-                        <button onClick={handleSaveEditUser} disabled={saving} className="flex-1 bg-primary text-white py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
+                        <button onClick={handleSaveEditUser} disabled={saving} className="flex-1 bg-navy-800 text-white py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2">
                           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Save Changes
                         </button>
                         <button onClick={() => setEditingUser(null)} className="flex-1 border border-border rounded-xl py-2.5 text-sm font-semibold text-text_secondary hover:bg-background">Cancel</button>
@@ -353,15 +353,15 @@ export default function Admin() {
                         <td className="px-5 py-3"><span className="text-[10px] font-bold uppercase tracking-wider bg-background border border-border px-2 py-0.5 rounded">{u.role?.replace('_', ' ')}</span></td>
                         <td className="px-5 py-3 text-xs text-text_secondary">{u.department_name || '—'}</td>
                         <td className="px-5 py-3">
-                          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${u.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${u.is_active ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
                             {u.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
                         <td className="px-5 py-3 text-right flex items-center justify-end gap-3">
-                          <button onClick={() => setEditingUser({ ...u })} className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                          <button onClick={() => setEditingUser({ ...u })} className="text-xs font-semibold text-navy-800 hover:underline flex items-center gap-1">
                             <Edit2 className="h-3 w-3" /> Edit
                           </button>
-                          <button onClick={() => toggleUserStatus(u.id, u.is_active)} className="text-xs font-semibold text-text_secondary hover:text-primary">
+                          <button onClick={() => toggleUserStatus(u.id, u.is_active)} className="text-xs font-semibold text-text_secondary hover:text-navy-800">
                             {u.is_active ? 'Deactivate' : 'Activate'}
                           </button>
                         </td>
@@ -381,12 +381,12 @@ export default function Admin() {
             <>
               <div className="p-5 border-b border-border bg-background/30 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-text_primary">Departments</h2>
-                <button onClick={() => setShowNewDept(true)} className="bg-primary text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-primary/20">
+                <button onClick={() => setShowNewDept(true)} className="bg-navy-800 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-navy-900/20">
                   <Plus className="h-4 w-4" /> New Department
                 </button>
               </div>
               {showNewDept && (
-                <div className="p-5 border-b border-border bg-primary/5 space-y-4">
+                <div className="p-5 border-b border-border bg-navy-50 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input placeholder="Department Name" value={newDept.name} onChange={e => setNewDept({ ...newDept, name: e.target.value })} className={inputCls} />
                     <input placeholder="Code (e.g. ENG)" value={newDept.code} onChange={e => setNewDept({ ...newDept, code: e.target.value.toUpperCase() })} className={inputCls} />
@@ -396,7 +396,7 @@ export default function Admin() {
                     </select>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={handleCreateDept} disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
+                    <button onClick={handleCreateDept} disabled={saving} className="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
                     <button onClick={() => setShowNewDept(false)} className="px-4 py-2 text-sm text-text_secondary">Cancel</button>
                   </div>
                 </div>
@@ -419,28 +419,40 @@ export default function Admin() {
                         </select>
                       </div>
                       <div className="flex gap-3">
-                        <button onClick={handleSaveEditDept} disabled={saving} className="flex-1 bg-primary text-white py-2.5 rounded-xl text-sm font-semibold">Save</button>
+                        <button onClick={handleSaveEditDept} disabled={saving} className="flex-1 bg-navy-800 text-white py-2.5 rounded-xl text-sm font-semibold">Save</button>
                         <button onClick={() => setEditingDept(null)} className="flex-1 border border-border rounded-xl py-2.5 text-sm text-text_secondary">Cancel</button>
                       </div>
                     </motion.div>
                   </div>
                 )}
               </AnimatePresence>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
-                {departments.map((d, i) => (
-                  <motion.div key={d.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    className="border border-border rounded-xl p-5 space-y-3 hover:border-primary/20 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-text_primary">{d.name}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold bg-background border border-border px-2 py-0.5 rounded uppercase">{d.code}</span>
-                        <button onClick={() => setEditingDept({ ...d })} className="p-1 text-text_secondary hover:text-primary transition-colors"><Edit2 className="h-3.5 w-3.5" /></button>
-                      </div>
-                    </div>
-                    <p className="text-xs text-text_secondary">HoD: <span className="text-text_primary font-semibold">{d.hod_name || 'Not assigned'}</span></p>
-                    <p className="text-xs text-text_secondary">{d.user_count} team members</p>
-                  </motion.div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-background/20 text-[10px] uppercase tracking-widest text-text_secondary font-bold border-b border-border">
+                      <th className="px-5 py-4">Department</th>
+                      <th className="px-5 py-4">Code</th>
+                      <th className="px-5 py-4">Head of Department</th>
+                      <th className="px-5 py-4 text-right">Team Members</th>
+                      <th className="px-5 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {departments.map((d) => (
+                      <tr key={d.id} className="hover:bg-background/30 transition-colors">
+                        <td className="px-5 py-3 font-semibold text-text_primary">{d.name}</td>
+                        <td className="px-5 py-3"><span className="text-[10px] font-bold uppercase bg-background border border-border px-2 py-0.5 rounded">{d.code}</span></td>
+                        <td className="px-5 py-3 text-sm text-text_secondary">{d.hod_name || '<span className=\"text-text_secondary\">Not assigned</span>'}</td>
+                        <td className="px-5 py-3 text-sm text-text_secondary text-right">{d.user_count}</td>
+                        <td className="px-5 py-3 text-right">
+                          <button onClick={() => setEditingDept({ ...d })} className="text-xs font-semibold text-navy-800 hover:underline flex items-center gap-1">
+                            <Edit2 className="h-3 w-3" /> Edit
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </>
           )}
@@ -450,12 +462,12 @@ export default function Admin() {
             <>
               <div className="p-5 border-b border-border bg-background/30 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-text_primary">Projects</h2>
-                <button onClick={() => setShowNewProject(true)} className="bg-primary text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-primary/20">
+                <button onClick={() => setShowNewProject(true)} className="bg-navy-800 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-navy-900/20">
                   <Plus className="h-4 w-4" /> New Project
                 </button>
               </div>
               {showNewProject && (
-                <div className="p-5 border-b border-border bg-primary/5 space-y-4">
+                <div className="p-5 border-b border-border bg-navy-50 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                     <input placeholder="Project Name" value={newProject.name} onChange={e => setNewProject({ ...newProject, name: e.target.value })} className={inputCls} />
                     <input placeholder="Code" value={newProject.code} onChange={e => setNewProject({ ...newProject, code: e.target.value.toUpperCase() })} className={inputCls} />
@@ -467,7 +479,7 @@ export default function Admin() {
                     </select>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={handleCreateProject} disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
+                    <button onClick={handleCreateProject} disabled={saving} className="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
                     <button onClick={() => setShowNewProject(false)} className="px-4 py-2 text-sm text-text_secondary">Cancel</button>
                   </div>
                 </div>
@@ -496,7 +508,7 @@ export default function Admin() {
                         </label>
                       </div>
                       <div className="flex gap-3">
-                        <button onClick={handleSaveEditProject} disabled={saving} className="flex-1 bg-primary text-white py-2.5 rounded-xl text-sm font-semibold">Save</button>
+                        <button onClick={handleSaveEditProject} disabled={saving} className="flex-1 bg-navy-800 text-white py-2.5 rounded-xl text-sm font-semibold">Save</button>
                         <button onClick={() => setEditingProject(null)} className="flex-1 border border-border rounded-xl py-2.5 text-sm text-text_secondary">Cancel</button>
                       </div>
                     </motion.div>
@@ -516,10 +528,10 @@ export default function Admin() {
                       <td className="px-5 py-4 font-semibold text-sm text-text_primary">{p.name}</td>
                       <td className="px-5 py-4 text-xs text-text_secondary">{p.code}</td>
                       <td className="px-5 py-4 text-xs text-text_secondary">{p.department_name || '—'}</td>
-                      <td className="px-5 py-4 text-center"><span className="font-bold text-text_primary bg-primary/5 px-3 py-1 rounded-lg border border-primary/10">{p.max_hours_per_week}h</span></td>
-                      <td className="px-5 py-4"><span className={`${p.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-100 text-zinc-400 dark:bg-white/5 dark:text-zinc-500'} text-[10px] font-bold px-2 py-1 rounded uppercase`}>{p.is_active ? 'Active' : 'Inactive'}</span></td>
+                      <td className="px-5 py-4 text-center"><span className="font-bold text-text_primary bg-navy-50 px-3 py-1 rounded-lg border border-navy-800/10">{p.max_hours_per_week}h</span></td>
+                      <td className="px-5 py-4"><span className={`${p.is_active ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-400  dark:text-gray-500'} text-[10px] font-bold px-2 py-1 rounded uppercase`}>{p.is_active ? 'Active' : 'Inactive'}</span></td>
                       <td className="px-5 py-4 text-right">
-                        <button onClick={() => setEditingProject({ ...p })} className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 ml-auto">
+                        <button onClick={() => setEditingProject({ ...p })} className="text-xs font-semibold text-navy-800 hover:underline flex items-center gap-1 ml-auto">
                           <Edit2 className="h-3 w-3" /> Edit
                         </button>
                       </td>
@@ -558,13 +570,13 @@ export default function Admin() {
                 </div>
                 <button
                   onClick={() => setShowNewActivity(true)}
-                  className="bg-primary text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-primary/20 whitespace-nowrap"
+                  className="bg-navy-800 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-navy-900/20 whitespace-nowrap"
                 >
                   <Plus className="h-4 w-4" /> New Activity
                 </button>
               </div>
               {showNewActivity && (
-                <div className="p-5 border-b border-border bg-primary/5 space-y-4">
+                <div className="p-5 border-b border-border bg-navy-50 space-y-4">
                   <h3 className="text-sm font-bold text-text_primary">New Activity</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <select
@@ -606,7 +618,7 @@ export default function Admin() {
                         finally { setSaving(false); }
                       }}
                       disabled={saving}
-                      className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2"
+                      className="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2"
                     >
                       {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Create
                     </button>
@@ -635,7 +647,7 @@ export default function Admin() {
                         <td className="px-5 py-3 text-xs font-mono text-text_secondary">{act.code}</td>
                         <td className="px-5 py-3 text-xs text-text_secondary">{act.project_name}</td>
                         <td className="px-5 py-3">
-                          <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${act.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-100 text-zinc-400 dark:bg-white/5 dark:text-zinc-500'}`}>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${act.is_active ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-400  dark:text-gray-500'}`}>
                             {act.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
@@ -646,7 +658,7 @@ export default function Admin() {
                               await api.deleteActivity(act.id);
                               setActivities(prev => prev.filter(a => a.id !== act.id));
                             }}
-                            className="text-xs font-semibold text-red-500 hover:underline"
+                            className="text-xs font-semibold text-danger hover:underline"
                           >
                             Remove
                           </button>
@@ -670,19 +682,19 @@ export default function Admin() {
             <>
               <div className="p-5 border-b border-border bg-background/30 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-text_primary">Accounting Periods</h2>
-                <button onClick={() => setShowNewPeriod(true)} className="bg-primary text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-primary/20">
+                <button onClick={() => setShowNewPeriod(true)} className="bg-navy-800 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-navy-900/20">
                   <Plus className="h-4 w-4" /> New Period
                 </button>
               </div>
               {showNewPeriod && (
-                <div className="p-5 border-b border-border bg-primary/5 space-y-4">
+                <div className="p-5 border-b border-border bg-navy-50 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input placeholder="Period Code (e.g. 2026-06)" value={newPeriod.period_code} onChange={e => setNewPeriod({ ...newPeriod, period_code: e.target.value })} className={inputCls} />
                     <input type="date" value={newPeriod.start_date} onChange={e => setNewPeriod({ ...newPeriod, start_date: e.target.value })} className={inputCls} />
                     <input type="date" value={newPeriod.end_date} onChange={e => setNewPeriod({ ...newPeriod, end_date: e.target.value })} className={inputCls} />
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={handleCreatePeriod} disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
+                    <button onClick={handleCreatePeriod} disabled={saving} className="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
                     <button onClick={() => setShowNewPeriod(false)} className="px-4 py-2 text-sm text-text_secondary">Cancel</button>
                   </div>
                 </div>
@@ -694,8 +706,8 @@ export default function Admin() {
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                       className="bg-surface border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                          <Unlock className="h-5 w-5 text-amber-500" />
+                        <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center">
+                          <Unlock className="h-5 w-5 text-warning" />
                         </div>
                         <div>
                           <h3 className="text-lg font-bold text-text_primary">Unlock Timesheet</h3>
@@ -708,11 +720,11 @@ export default function Admin() {
                         onChange={e => setUnlockReason(e.target.value)}
                         placeholder="Reason for unlock (required — this is logged in the audit trail)"
                         rows={3}
-                        className={`w-full border rounded-xl p-3 text-sm text-text_primary resize-none focus:outline-none focus:ring-2 mb-5 ${!unlockReason.trim() ? 'border-amber-500 focus:ring-amber-500/50' : 'border-border focus:ring-primary/20'} bg-background`}
+                        className={`w-full border rounded-xl p-3 text-sm text-text_primary resize-none focus:outline-none focus:ring-2 mb-5 ${!unlockReason.trim() ? 'border-warning focus:ring-warning/30' : 'border-border focus:ring-navy-800/20'} bg-background`}
                       />
                       <div className="flex gap-3">
                         <button onClick={handleUnlock} disabled={!unlockReason.trim() || !!unlockingId}
-                          className="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
+                          className="flex-1 bg-warning hover:bg-gold-600 text-white py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
                           {unlockingId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Unlock className="h-4 w-4" />} Unlock
                         </button>
                         <button onClick={() => { setUnlockModal(null); setUnlockReason(''); }} className="flex-1 border border-border rounded-xl py-2.5 text-sm text-text_secondary">Cancel</button>
@@ -734,7 +746,7 @@ export default function Admin() {
                         <td className="px-5 py-4 text-xs text-text_secondary">{new Date(p.start_date).toLocaleDateString('en-GB')}</td>
                         <td className="px-5 py-4 text-xs text-text_secondary">{new Date(p.end_date).toLocaleDateString('en-GB')}</td>
                         <td className="px-5 py-4">
-                          <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${p.is_closed ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                          <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${p.is_closed ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'}`}>
                             {p.is_closed ? 'Closed' : 'Open'}
                           </span>
                         </td>
@@ -744,11 +756,11 @@ export default function Admin() {
                               if (expandedPeriod === p.id) { setExpandedPeriod(null); return; }
                               setExpandedPeriod(p.id);
                               await loadPeriodTimesheets(p.id);
-                            }} className="text-xs text-text_secondary hover:text-primary flex items-center gap-1">
+                            }} className="text-xs text-text_secondary hover:text-navy-800 flex items-center gap-1">
                               {expandedPeriod === p.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />} Timesheets
                             </button>
                           )}
-                          <button onClick={() => togglePeriod(p.id, p.is_closed)} className="text-xs font-semibold text-primary hover:underline">
+                          <button onClick={() => togglePeriod(p.id, p.is_closed)} className="text-xs font-semibold text-navy-800 hover:underline">
                             {p.is_closed ? 'Re-open' : 'Close'}
                           </button>
                         </td>
@@ -775,18 +787,18 @@ export default function Admin() {
                                         <td className="px-4 py-2 font-semibold text-text_primary">{ts.user_name}</td>
                                         <td className="px-4 py-2 text-text_secondary">{new Date(ts.week_start_date).toLocaleDateString('en-GB')} – {new Date(ts.week_end_date).toLocaleDateString('en-GB')}</td>
                                         <td className="px-4 py-2">
-                                          <span className={`font-bold uppercase text-[9px] px-1.5 py-0.5 rounded ${ts.is_admin_unlocked ? 'bg-amber-500/10 text-amber-500' : ts.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-zinc-100 text-zinc-400 dark:bg-white/5 dark:text-zinc-500'}`}>
+                                          <span className={`font-bold uppercase text-[9px] px-1.5 py-0.5 rounded ${ts.is_admin_unlocked ? 'bg-warning/10 text-warning' : ts.status === 'approved' ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-400  dark:text-gray-500'}`}>
                                             {ts.is_admin_unlocked ? 'Unlocked' : ts.status}
                                           </span>
                                         </td>
                                         <td className="px-4 py-2 text-right">
                                           {!ts.is_admin_unlocked ? (
                                             <button onClick={() => setUnlockModal({ timesheetId: ts.id, open: true })}
-                                              className="text-[10px] font-semibold text-amber-500 hover:underline flex items-center gap-1 ml-auto">
+                                              className="text-[10px] font-semibold text-warning hover:underline flex items-center gap-1 ml-auto">
                                               <Lock className="h-3 w-3" /> Unlock
                                             </button>
                                           ) : (
-                                            <span className="text-[10px] text-emerald-500 font-semibold">Unlocked</span>
+                                            <span className="text-[10px] text-success font-semibold">Unlocked</span>
                                           )}
                                         </td>
                                       </tr>
@@ -810,18 +822,18 @@ export default function Admin() {
             <>
               <div className="p-5 border-b border-border bg-background/30 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-text_primary">Public Holidays</h2>
-                <button onClick={() => setShowNewHoliday(true)} className="bg-primary text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-primary/20">
+                <button onClick={() => setShowNewHoliday(true)} className="bg-navy-800 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-navy-900/20">
                   <Plus className="h-4 w-4" /> Add Holiday
                 </button>
               </div>
               {showNewHoliday && (
-                <div className="p-5 border-b border-border bg-primary/5 space-y-4">
+                <div className="p-5 border-b border-border bg-navy-50 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <input placeholder="Holiday Name" value={newHoliday.name} onChange={e => setNewHoliday({ ...newHoliday, name: e.target.value })} className={inputCls} />
                     <input type="date" value={newHoliday.date} onChange={e => setNewHoliday({ ...newHoliday, date: e.target.value })} className={inputCls} />
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={handleCreateHoliday} disabled={saving} className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
+                    <button onClick={handleCreateHoliday} disabled={saving} className="bg-navy-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">Create</button>
                     <button onClick={() => setShowNewHoliday(false)} className="px-4 py-2 text-sm text-text_secondary">Cancel</button>
                   </div>
                 </div>
@@ -833,7 +845,7 @@ export default function Admin() {
                       <p className="text-sm font-semibold text-text_primary">{h.name}</p>
                       <p className="text-xs text-text_secondary">{new Date(h.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
                     </div>
-                    <button onClick={async () => { await api.deleteHoliday(h.id); loadAll(); }} className="text-xs font-semibold text-red-500 hover:underline">Remove</button>
+                    <button onClick={async () => { await api.deleteHoliday(h.id); loadAll(); }} className="text-xs font-semibold text-danger hover:underline">Remove</button>
                   </div>
                 ))}
               </div>
@@ -853,7 +865,7 @@ export default function Admin() {
                       type="number" min={1} max={24}
                       value={settings.min_daily_hours}
                       onChange={e => setSettings({ ...settings, min_daily_hours: e.target.value })}
-                      className="w-32 bg-background border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-32 bg-background border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:ring-2 focus:ring-navy-800/20"
                     />
                     <p className="text-xs text-text_secondary mt-1.5">Currently {settings.min_daily_hours} hours per working day.</p>
                   </div>
@@ -865,7 +877,7 @@ export default function Admin() {
                         { value: 'flag', label: 'Flag (require explanation)', description: 'Employee can submit but must provide a written explanation. Finance sees the flag.' },
                         { value: 'warn', label: 'Warn only', description: 'Employee sees a warning but can submit freely. No block or flag applied.' },
                       ].map(option => (
-                        <label key={option.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${settings.hour_enforcement_mode === option.value ? 'border-primary bg-primary/5' : 'border-border hover:bg-background/50'}`}>
+                        <label key={option.value} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${settings.hour_enforcement_mode === option.value ? 'border-navy-800 bg-navy-50' : 'border-border hover:bg-background/50'}`}>
                           <input
                             type="radio"
                             name="enforcement_mode"
@@ -875,7 +887,7 @@ export default function Admin() {
                             className="mt-0.5 accent-primary"
                           />
                           <div>
-                            <p className={`text-sm font-bold ${settings.hour_enforcement_mode === option.value ? 'text-primary' : 'text-text_primary'}`}>{option.label}</p>
+                            <p className={`text-sm font-bold ${settings.hour_enforcement_mode === option.value ? 'text-navy-800' : 'text-text_primary'}`}>{option.label}</p>
                             <p className="text-xs text-text_secondary mt-0.5">{option.description}</p>
                           </div>
                         </label>
@@ -883,7 +895,7 @@ export default function Admin() {
                     </div>
                   </div>
                   <button onClick={saveSettings} disabled={saving}
-                    className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20 flex items-center gap-2">
+                    className="bg-navy-800 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-navy-900/20 flex items-center gap-2">
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                     Save Settings
                   </button>
