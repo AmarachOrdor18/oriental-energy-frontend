@@ -2,11 +2,18 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/Layout/DashboardLayout';
 import { BarChart3, FileText, Search, Download, RefreshCw, Users, AlertTriangle, PieChart } from 'lucide-react';
 import { api } from '../lib/api';
+import { useAuth } from '../lib/auth';
 import { motion } from 'framer-motion';
 
 type ReportType = 'not_posted' | 'hours_summary';
 
 export default function Reports() {
+  const { user } = useAuth();
+  // Server scopes HODs to their department(s) and line managers to their
+  // direct reports; the department picker is hidden for both since it can
+  // only narrow for finance/admin anyway.
+  const deptScoped = user?.role === 'hod' || user?.role === 'line_manager';
+  const scopeLabel = user?.role === 'hod' ? 'My department(s)' : 'My direct reports';
   const [activeReport, setActiveReport] = useState<ReportType>('not_posted');
   const [periods, setPeriods] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
@@ -37,7 +44,7 @@ export default function Reports() {
     setIsLoading(true); setError(''); setHasRun(false);
     try {
       const params: Record<string, string> = {};
-      if (notPostedDept) params.department_id = notPostedDept;
+      if (notPostedDept && !deptScoped) params.department_id = notPostedDept;
       const data = await api.getNotPostedReport(notPostedPeriod, params);
       setNotPostedResults(data);
       setHasRun(true);
@@ -53,7 +60,7 @@ export default function Reports() {
     setIsLoading(true); setError(''); setHasRun(false);
     try {
       const params: Record<string, string> = { date_from: dateFrom, date_to: dateTo };
-      if (summaryDept) params.department_id = summaryDept;
+      if (summaryDept && !deptScoped) params.department_id = summaryDept;
       const data = await api.getHoursSummary(params);
       setSummaryResults(data.rows || data);
       setHasRun(true);
@@ -160,16 +167,22 @@ export default function Reports() {
                   <label className="field-label">
                     Department
                   </label>
-                  <select
-                    value={notPostedDept}
-                    onChange={e => setNotPostedDept(e.target.value)}
-                    className="input-base w-full"
-                  >
-                    <option value="">All departments</option>
-                    {departments.map((d: any) => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
+                  {deptScoped ? (
+                    <select className="input-base w-full" disabled value="">
+                      <option value="">{scopeLabel}</option>
+                    </select>
+                  ) : (
+                    <select
+                      value={notPostedDept}
+                      onChange={e => setNotPostedDept(e.target.value)}
+                      className="input-base w-full"
+                    >
+                      <option value="">All departments</option>
+                      {departments.map((d: any) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <button
                   onClick={runNotPosted}
@@ -210,16 +223,22 @@ export default function Reports() {
                   <label className="field-label">
                     Department
                   </label>
-                  <select
-                    value={summaryDept}
-                    onChange={e => setSummaryDept(e.target.value)}
-                    className="input-base w-full"
-                  >
-                    <option value="">All departments</option>
-                    {departments.map((d: any) => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
+                  {deptScoped ? (
+                    <select className="input-base w-full" disabled value="">
+                      <option value="">{scopeLabel}</option>
+                    </select>
+                  ) : (
+                    <select
+                      value={summaryDept}
+                      onChange={e => setSummaryDept(e.target.value)}
+                      className="input-base w-full"
+                    >
+                      <option value="">All departments</option>
+                      {departments.map((d: any) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <button
                   onClick={runHoursSummary}

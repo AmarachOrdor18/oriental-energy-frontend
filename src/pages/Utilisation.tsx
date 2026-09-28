@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../components/Layout/DashboardLayout';
 import { Activity, RefreshCw, Search } from 'lucide-react';
 import { api } from '../lib/api';
+import { useAuth } from '../lib/auth';
 import { TableToolbar, TablePagination, SortableTh, useTableControls } from '../components/ui/TableControls';
 
 interface UtilRow {
@@ -17,6 +18,12 @@ interface UtilRow {
 
 export default function Utilisation() {
   const now = new Date();
+  const { user } = useAuth();
+  // HODs are scoped server-side to their own department(s): the picker is
+  // hidden and no department filter is sent. Line managers are scoped to their
+  // direct reports server-side; finance/admin pick freely.
+  const isHod = user?.role === 'hod';
+  const isLineManager = user?.role === 'line_manager';
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [dept, setDept] = useState('');
@@ -44,7 +51,7 @@ export default function Utilisation() {
     setIsLoading(true); setError(''); setHasRun(false);
     try {
       const params: Record<string, string> = { year: String(year), month: String(month) };
-      if (dept) params.department_id = dept;
+      if (dept && !isHod && !isLineManager) params.department_id = dept;
       const data = await api.getUtilisation(params);
       setRows(data.rows || []);
       setHasRun(true);
@@ -115,10 +122,20 @@ export default function Utilisation() {
             </div>
             <div>
               <label className="field-label">Department</label>
-              <select className="input-base w-full" value={dept} onChange={(e) => setDept(e.target.value)}>
-                <option value="">All departments</option>
-                {depts.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
+              {isHod ? (
+                <select className="input-base w-full" disabled value="">
+                  <option value="">My department(s)</option>
+                </select>
+              ) : isLineManager ? (
+                <select className="input-base w-full" disabled value="">
+                  <option value="">My direct reports</option>
+                </select>
+              ) : (
+                <select className="input-base w-full" value={dept} onChange={(e) => setDept(e.target.value)}>
+                  <option value="">All departments</option>
+                  {depts.map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+              )}
             </div>
             <button className="btn-solid" onClick={fetchData} disabled={isLoading}>
               {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
