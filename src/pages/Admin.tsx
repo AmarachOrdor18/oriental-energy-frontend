@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TablePagination, useTableControls } from '../components/ui/TableControls';
 
 type Tab = 'users' | 'departments' | 'projects' | 'activities' | 'periods' | 'holidays' | 'settings' | 'audit' | 'reports';
 
@@ -29,7 +30,7 @@ export default function Admin() {
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
 
-  // Forms — new items
+  // Forms | new items
   const [showNewUser, setShowNewUser] = useState(false);
   const [showNewDept, setShowNewDept] = useState(false);
   const [showNewProject, setShowNewProject] = useState(false);
@@ -187,6 +188,7 @@ export default function Admin() {
   const filteredUsers = users.filter(u =>
     u.name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase())
   );
+  const usersTable = useTableControls(filteredUsers as any, 15);
 
   const tabs: { key: Tab; label: string; icon: any }[] = [
     { key: 'users', label: 'Users', icon: Users },
@@ -299,7 +301,7 @@ export default function Admin() {
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
                       className="bg-surface border border-border rounded-2xl p-6 w-full max-w-lg shadow-2xl">
                       <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-lg font-bold text-text_primary">Edit User — {editingUser.name}</h3>
+                        <h3 className="text-lg font-bold text-text_primary">Edit User | {editingUser.name}</h3>
                         <button onClick={() => setEditingUser(null)}><X className="h-5 w-5 text-text_secondary" /></button>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
@@ -346,12 +348,12 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/50">
-                    {filteredUsers.slice(0, 50).map(u => (
+                    {usersTable.paged.map((u: any) => (
                       <tr key={u.id} className="hover:bg-background/30 transition-colors">
                         <td className="px-5 py-3 text-sm font-semibold text-text_primary">{u.name}</td>
                         <td className="px-5 py-3 text-xs text-text_secondary">{u.email}</td>
                         <td className="px-5 py-3"><span className="text-[10px] font-bold uppercase tracking-wider bg-background border border-border px-2 py-0.5 rounded">{u.role?.replace('_', ' ')}</span></td>
-                        <td className="px-5 py-3 text-xs text-text_secondary">{u.department_name || '—'}</td>
+                        <td className="px-5 py-3 text-xs text-text_secondary">{u.department_name || 'N/A'}</td>
                         <td className="px-5 py-3">
                           <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${u.is_active ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
                             {u.is_active ? 'Active' : 'Inactive'}
@@ -369,9 +371,13 @@ export default function Admin() {
                     ))}
                   </tbody>
                 </table>
-                <div className="p-3 text-xs text-text_secondary text-center border-t border-border">
-                  Showing {Math.min(filteredUsers.length, 50)} of {filteredUsers.length} users
-                </div>
+                <TablePagination
+                  page={usersTable.page}
+                  totalPages={usersTable.totalPages}
+                  totalItems={usersTable.totalItems}
+                  pageSize={usersTable.pageSize}
+                  onPage={usersTable.setPage}
+                />
               </div>
             </>
           )}
@@ -527,7 +533,7 @@ export default function Admin() {
                     <tr key={p.id} className="hover:bg-background/30 transition-colors">
                       <td className="px-5 py-4 font-semibold text-sm text-text_primary">{p.name}</td>
                       <td className="px-5 py-4 text-xs text-text_secondary">{p.code}</td>
-                      <td className="px-5 py-4 text-xs text-text_secondary">{p.department_name || '—'}</td>
+                      <td className="px-5 py-4 text-xs text-text_secondary">{p.department_name || 'N/A'}</td>
                       <td className="px-5 py-4 text-center"><span className="font-bold text-text_primary bg-navy-50 px-3 py-1 rounded-lg border border-navy-800/10">{p.max_hours_per_week}h</span></td>
                       <td className="px-5 py-4"><span className={`${p.is_active ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-400  dark:text-gray-500'} text-[10px] font-bold px-2 py-1 rounded uppercase`}>{p.is_active ? 'Active' : 'Inactive'}</span></td>
                       <td className="px-5 py-4 text-right">
@@ -680,7 +686,7 @@ export default function Admin() {
           {/* PERIODS TAB */}
           {activeTab === 'periods' && (
             <>
-              <div className="p-5 border-b border-border bg-background/30 flex items-center justify-between">
+              <div className="p-5 border-b border-border bg-background/30 flex items-center justify-between" data-tour="admin-periods">
                 <h2 className="text-lg font-bold text-text_primary">Accounting Periods</h2>
                 <button onClick={() => setShowNewPeriod(true)} className="bg-navy-800 text-white font-semibold px-4 py-2 rounded-xl flex items-center gap-2 text-sm shadow-lg shadow-navy-900/20">
                   <Plus className="h-4 w-4" /> New Period
@@ -718,7 +724,7 @@ export default function Admin() {
                       <textarea
                         value={unlockReason}
                         onChange={e => setUnlockReason(e.target.value)}
-                        placeholder="Reason for unlock (required — this is logged in the audit trail)"
+                        placeholder="Reason for unlock (required | this is logged in the audit trail)"
                         rows={3}
                         className={`w-full border rounded-xl p-3 text-sm text-text_primary resize-none focus:outline-none focus:ring-2 mb-5 ${!unlockReason.trim() ? 'border-warning focus:ring-warning/30' : 'border-border focus:ring-navy-800/20'} bg-background`}
                       />
@@ -856,6 +862,20 @@ export default function Admin() {
           {activeTab === 'settings' && (
             <div className="p-6 space-y-8 max-w-2xl">
               <div>
+                <h2 className="text-base font-bold text-text_primary mb-1">Attendance Go-Live Date</h2>
+                <p className="text-xs text-text_secondary mb-5">The day Oriental Energy started tracking attendance in this system. Weekdays before this date are shown neutrally on the Daily Logging calendar | they are never counted as "missing" against anyone.</p>
+                <div>
+                  <label className="text-sm font-bold text-text_primary block mb-2">Go-live date</label>
+                  <input
+                    type="date"
+                    value={settings.go_live_date || ''}
+                    onChange={e => setSettings({ ...settings, go_live_date: e.target.value })}
+                    className="w-48 bg-background border border-border rounded-lg px-3 py-2 text-sm text-text_primary focus:outline-none focus:ring-2 focus:ring-navy-800/20"
+                  />
+                  <p className="text-xs text-text_secondary mt-1.5">{settings.go_live_date ? `Tracking begins ${new Date(settings.go_live_date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.` : 'Not set | all past weekdays count as required.'}</p>
+                </div>
+              </div>
+              <div className="border-t border-border/50 pt-6">
                 <h2 className="text-base font-bold text-text_primary mb-1">Hour Enforcement Rules</h2>
                 <p className="text-xs text-text_secondary mb-5">Controls how the system responds when a user submits a timesheet with daily hours below the minimum.</p>
                 <div className="space-y-5">
@@ -907,7 +927,7 @@ export default function Admin() {
           {/* AUDIT LOG TAB */}
           {activeTab === 'audit' && (
             <>
-              <div className="p-5 border-b border-border bg-background/30 flex flex-wrap items-center gap-3">
+              <div className="p-5 border-b border-border bg-background/30 flex flex-wrap items-center gap-3" data-tour="admin-audit">
                 <h2 className="text-base font-bold text-text_primary mr-2">Audit Trail</h2>
                 <input type="date" value={auditFilters.date_from} onChange={e => setAuditFilters(p => ({ ...p, date_from: e.target.value }))}
                   placeholder="From" className="input-base w-auto text-sm" />
@@ -937,7 +957,7 @@ export default function Admin() {
                         </td>
                         <td className="px-5 py-3 text-text_secondary">{entry.entity_type}{entry.entity_id ? `: ${entry.entity_id.slice(-8)}` : ''}</td>
                         <td className="px-5 py-3 text-text_secondary max-w-[200px] truncate">{entry.description}</td>
-                        <td className="px-5 py-3 text-text_secondary max-w-[150px] truncate">{entry.reason || '—'}</td>
+                        <td className="px-5 py-3 text-text_secondary max-w-[150px] truncate">{entry.reason || 'N/A'}</td>
                       </tr>
                     ))}
                     {auditLog.length === 0 && <tr><td colSpan={6} className="px-5 py-10 text-center text-text_secondary">No audit entries found.</td></tr>}
@@ -976,8 +996,8 @@ export default function Admin() {
                     {notPosted.map((u: any) => (
                       <tr key={u.id} className="hover:bg-background/50">
                         <td className="px-5 py-3 font-semibold text-sm text-text_primary">{u.name}</td>
-                        <td className="px-5 py-3 text-xs text-text_secondary">{u.department_name || '—'}</td>
-                        <td className="px-5 py-3 text-xs text-text_secondary">{u.manager_name || '—'}</td>
+                        <td className="px-5 py-3 text-xs text-text_secondary">{u.department_name || 'N/A'}</td>
+                        <td className="px-5 py-3 text-xs text-text_secondary">{u.manager_name || 'N/A'}</td>
                         <td className="px-5 py-3 text-xs text-text_secondary">{u.last_submitted ? new Date(u.last_submitted).toLocaleDateString('en-GB') : 'Never'}</td>
                       </tr>
                     ))}

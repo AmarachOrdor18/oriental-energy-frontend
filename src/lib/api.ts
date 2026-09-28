@@ -15,6 +15,13 @@ async function request(endpoint: string, options: RequestInit = {}): Promise<any
   const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
 
   if (res.status === 401) {
+    // A 401 on the login call itself is just bad credentials, not an expired
+    // session — surface the server's message instead of bouncing to /login.
+    if (endpoint.startsWith('/auth/login')) {
+      let msg = 'Invalid email or password.';
+      try { msg = (await res.json()).error || msg; } catch { /* keep default */ }
+      throw new Error(msg);
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/login';
@@ -84,10 +91,14 @@ export const api = {
   rejectTimesheet: (id: string, reason: string) => request(`/approvals/${id}/reject`, { method: 'PATCH', body: JSON.stringify({ reason }) }),
   bulkApprove: (ids: string[]) => request('/approvals/bulk-approve', { method: 'POST', body: JSON.stringify({ ids }) }),
   broadcastReminder: (message: string, defaulters_only = false) => request('/approvals/broadcast-reminder', { method: 'POST', body: JSON.stringify({ message, defaulters_only }) }),
+  createBroadcast: (message: string, defaulters_only: boolean, scheduled_for?: string) =>
+    request('/approvals/broadcasts', { method: 'POST', body: JSON.stringify({ message, defaulters_only, scheduled_for }) }),
+  getBroadcasts: () => request('/approvals/broadcasts'),
+  cancelBroadcast: (id: string) => request(`/approvals/broadcasts/${id}`, { method: 'DELETE' }),
 
   // Finance
   getFinanceReviewQueue: (params?: Record<string, string>) => request(`/finance/review-queue?${new URLSearchParams(params || '')}`),
-  exportFinanceReviewQueue: (period?: string) => request(`/finance/review-queue/export${period ? `?period=${period}` : ''}`),
+  exportFinanceReviewQueue: (period?: string, departmentId?: string) => request(`/finance/review-queue/export?${new URLSearchParams({ ...(period ? { period } : {}), ...(departmentId ? { department_id: departmentId } : {}) })}`),
   getFinanceDecisions: (period: string) => request(`/finance/decisions?period=${period}`),
   saveFinanceDecisions: (data: { decisions: any[]; period: string }) => request('/finance/decisions', { method: 'POST', body: JSON.stringify(data) }),
   getFinanceDecisionHistory: (params?: Record<string, string>) => request(`/finance/decisions/history?${new URLSearchParams(params || '')}`),
@@ -109,6 +120,7 @@ export const api = {
   // Admin — new v5 methods
   getAdminHealth: () => request('/admin/health'),
   getAdminSettings: () => request('/admin/settings'),
+  getSystemSettings: () => request('/settings/system'),
   updateAdminSettings: (data: any) => request('/admin/settings', { method: 'PATCH', body: JSON.stringify(data) }),
   getAuditLog: (params?: Record<string, string>) => request(`/admin/audit-log?${new URLSearchParams(params || '')}`),
   reassignManager: (data: any) => request('/admin/reassign-manager', { method: 'POST', body: JSON.stringify(data) }),
@@ -125,6 +137,19 @@ export const api = {
   // Reports — new v5 methods
   getNotPostedReport: (periodCode: string, params?: Record<string, string>) => request(`/reports/not-posted?period_code=${periodCode}&${new URLSearchParams(params || '')}`),
   getHoursSummary: (params: Record<string, string>) => request(`/reports/hours-summary?${new URLSearchParams(params)}`),
+
+  // Utilisation & rate cards (v7)
+  getUtilisation: (params: Record<string, string>) => request(`/utilisation?${new URLSearchParams(params)}`),
+  getRateCards: () => request('/rate-cards'),
+  createRateCard: (data: any) => request('/rate-cards', { method: 'POST', body: JSON.stringify(data) }),
+  updateRateCard: (id: string, data: any) => request(`/rate-cards/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deactivateRateCard: (id: string) => request(`/rate-cards/${id}`, { method: 'DELETE' }),
+
+  // Budgets (v7)
+  getBudgets: (params: Record<string, string>) => request(`/budgets?${new URLSearchParams(params)}`),
+  // budgets returns { year, rows, departments } — departments is the per-department burn rollup
+  setBudget: (projectId: string, data: { year: number; budgeted_hours: number; budgeted_cost?: number | null }) =>
+    request(`/budgets/${projectId}`, { method: 'PUT', body: JSON.stringify(data) }),
 
   // Activities
   getActivities: (projectId?: string) => request(`/activities${projectId ? `?project_id=${projectId}` : ''}`),

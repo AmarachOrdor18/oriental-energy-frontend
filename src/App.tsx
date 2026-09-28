@@ -1,5 +1,6 @@
 import { Route, Switch, Redirect } from "wouter";
 import { AuthProvider, useAuth } from "./lib/auth";
+import OnboardingTour from "./components/Onboarding/OnboardingTour";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Approvals from "./pages/Approvals";
@@ -12,6 +13,9 @@ import SubmissionDetail from "./pages/SubmissionDetail";
 import MemberDrilldown from "./pages/MemberDrilldown";
 import DailyLogging from "./pages/DailyLogging";
 import Reports from "./pages/Reports";
+import Utilisation from "./pages/Utilisation";
+import RateCards from "./pages/RateCards";
+import Budgets from "./pages/Budgets";
 import { useEffect } from "react";
 
 function ProtectedRoute({ component: Component, allowedRoles, ...rest }: any) {
@@ -86,10 +90,19 @@ function AppRoutes() {
           {(params: any) => <ProtectedRoute component={MemberDrilldown} allowedRoles={['line_manager', 'hod', 'admin']} params={params} />}
         </Route>
         <Route path="/finance">
-          <ProtectedRoute component={Finance} allowedRoles={['finance', 'admin']} />
+          <ProtectedRoute component={Finance} allowedRoles={['finance', 'admin', 'hod']} />
         </Route>
         <Route path="/reports">
           <ProtectedRoute component={Reports} allowedRoles={['finance', 'admin', 'line_manager', 'hod']} />
+        </Route>
+        <Route path="/utilisation">
+          <ProtectedRoute component={Utilisation} allowedRoles={['finance', 'admin', 'line_manager', 'hod']} />
+        </Route>
+        <Route path="/rate-cards">
+          <ProtectedRoute component={RateCards} allowedRoles={['admin']} />
+        </Route>
+        <Route path="/budgets">
+          <ProtectedRoute component={Budgets} allowedRoles={['finance', 'admin', 'hod']} />
         </Route>
         <Route path="/admin">
           <ProtectedRoute component={Admin} allowedRoles={['admin']} />
@@ -105,6 +118,8 @@ function AppRoutes() {
           </div>
         </Route>
       </Switch>
+      {/* Role-based onboarding tour: mounts inside the authed shell only */}
+      {isAuthenticated && <OnboardingTour />}
     </div>
   );
 }

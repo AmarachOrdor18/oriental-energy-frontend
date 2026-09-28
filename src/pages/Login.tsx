@@ -128,6 +128,11 @@ export default function Login() {
                   className="mb-6 p-3 bg-danger-bg border border-danger/20 rounded-lg text-danger text-sm font-medium"
                 >
                   {error}
+                  {/invalid email/i.test(error) && (
+                    <p className="text-xs mt-1.5 text-danger/80">
+                      Company emails use your first initial and surname, e.g. v.mohammed@oriental-er.com. Check Administration for the exact address.
+                    </p>
+                  )}
                 </motion.div>
               )}
 

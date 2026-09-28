@@ -7,7 +7,7 @@ interface StatusBadgeProps {
   className?: string;
 }
 
-/* Keyword-driven badge — one component across the whole platform.
+/* Keyword-driven badge | one component across the whole platform.
    Mirrors the reference's semantic mapping: success / warning / danger / muted. */
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   let colorClass = 'bg-gray-100 text-gray-600';

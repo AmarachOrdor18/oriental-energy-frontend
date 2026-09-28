@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { CalendarClock, ChevronRight, Moon } from 'lucide-react';
 import NotificationCenter from '../NotificationCenter';
+import { TourLauncher } from '../Onboarding/OnboardingTour';
 import { useAuth } from '../../lib/auth';
+import { api } from '../../lib/api';
 import { breadcrumbsFor } from './Sidebar';
 
 export default function Header() {
@@ -12,6 +14,17 @@ export default function Header() {
     if (typeof window === 'undefined') return false;
     return document.documentElement.classList.contains('dark');
   });
+  const [periodLabel, setPeriodLabel] = useState<string | null>(null);
+
+  // The one open accounting period, live from the server
+  useEffect(() => {
+    api.getAccountingPeriods()
+      .then((ps: any[]) => {
+        const open = ps.find(p => !p.is_closed);
+        setPeriodLabel(open ? open.period_code.replace('-', ' / ') : 'None open');
+      })
+      .catch(() => setPeriodLabel(null));
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -26,7 +39,7 @@ export default function Header() {
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 rounded-lg border border-gray-100 bg-white px-3 py-1.5 text-xs font-semibold text-gray-500 shadow-sm">
           <CalendarClock className="h-3.5 w-3.5 text-gold-600" />
-          <span>Accounting period: May 2026</span>
+          <span>Accounting period: {periodLabel || '...'}</span>
         </div>
 
         {/* Breadcrumbs */}
@@ -53,9 +66,11 @@ export default function Header() {
         </p>
 
         <div className="flex items-center gap-3 border-l border-gray-100 pl-4">
+          <TourLauncher />
           <button
             onClick={() => setIsDark(prev => !prev)}
             title={isDark ? 'Light mode' : 'Dark mode'}
+            data-tour="topbar-darkmode"
             className="p-2 rounded-lg transition-colors"
             style={{ color: 'var(--color-text-secondary)' }}
           >

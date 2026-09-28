@@ -46,6 +46,8 @@ export default {
         warning: 'var(--color-warning)',
         danger: 'var(--color-danger)',
         ink: 'var(--color-ink)',
+        success: 'hsl(var(--success))',
+        success_bg: 'hsl(var(--success-bg))',
         success_light: 'var(--color-success-light)',
         success_text: 'var(--color-success-text)',
       },

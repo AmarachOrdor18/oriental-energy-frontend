@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../components/Layout/DashboardLayout';
-import { ChevronLeft, ChevronRight, CheckCircle, Plus, X, Save, AlertTriangle, Loader2, BookOpen, Send, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, Plus, X, Save, AlertTriangle, Loader2, BookOpen, Send, CheckCircle2, CalendarClock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../lib/auth';
 import { api } from '../lib/api';
@@ -60,10 +60,11 @@ export default function DailyLogging() {
   const [calendarDays, setCalendarDays] = useState<any[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [holidays, setHolidays] = useState<any[]>([]);
+  const [goLiveDate, setGoLiveDate] = useState<string | null>(null);
   const [activitiesByProject, setActivitiesByProject] = useState<Record<string, any[]>>({});
 
   // Modal state
-  const [selectedDay, setSelectedDay] = useState<{ date: Date; dateStr: string } | null>(null);
+  const [selectedDay, setSelectedDay] = useState<{ date: Date; dateStr: string; isFuture?: boolean } | null>(null);
   const [modalRows, setModalRows] = useState<DayLog[]>([]);
   const [dayMode, setDayMode] = useState<DayMode>('work');
   const [isSaving, setIsSaving] = useState(false);
@@ -87,6 +88,9 @@ export default function DailyLogging() {
   useEffect(() => {
     loadProjects();
     loadHolidays();
+    api.getSystemSettings()
+      .then((s: Record<string, string>) => setGoLiveDate(s.go_live_date || null))
+      .catch(() => setGoLiveDate(null));
   }, []);
 
   useEffect(() => {
@@ -227,6 +231,12 @@ export default function DailyLogging() {
   const getLeaveLabel = (leaveType?: string) => leaveType === 'sick_leave' ? 'Sick leave' : leaveType === 'annual_leave' ? 'Annual leave' : 'Leave';
   const isLatestMonth = year === new Date().getFullYear() && month === new Date().getMonth();
 
+  const goLive = useMemo(() => {
+    if (!goLiveDate) return null;
+    const d = new Date(goLiveDate + 'T00:00:00');
+    return Number.isNaN(d.getTime()) ? null : d;
+  }, [goLiveDate]);
+
   const getDayStatus = (dayObj: any) => {
     if (!dayObj.isCurrentMonth) return 'padding';
     if (!monthLogsLoaded) return 'loading';
@@ -236,11 +246,17 @@ export default function DailyLogging() {
     if (dayOfWeek === 0 || dayOfWeek === 6) return 'weekend';
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (dayObj.date > today) return 'future';
     const logData = monthLogs[dateStr];
+    // Pre-booked leave shows even on future days (leave planning).
+    if (logData?.status === 'leave' && dayObj.date > today) return 'leave';
+    if (dayObj.date > today) return 'future';
+    // Real entries always show their true status and stay editable, even
+    // before go-live. Only EMPTY pre-live days render as plain green.
     if (logData?.status === 'leave') return 'leave';
     if (logData && logData.totalHours >= 8) return 'logged';
     if (logData && logData.totalHours > 0) return 'incomplete';
+    // Days before go-live are not required: render as settled green.
+    if (goLive && dayObj.date < goLive) return 'pre_live';
     if (dayObj.date < today) return 'missed';
     return 'not_logged';
   };
@@ -303,7 +319,8 @@ export default function DailyLogging() {
 
   const handleDayClick = (dayObj: any) => {
     const status = getDayStatus(dayObj);
-    if (status === 'padding' || status === 'weekend' || status === 'future' || status === 'holiday') return;
+    // Future days are clickable for leave planning only (modal restricts modes).
+    if (status === 'padding' || status === 'weekend' || status === 'holiday' || status === 'pre_live') return;
 
     const dateStr = toDateKey(dayObj.date);
     const existingLogs = monthLogs[dateStr]?.logs || [];
@@ -316,8 +333,8 @@ export default function DailyLogging() {
       setModalRows([{ project_id: '', hours: 0, notes: '' }]);
     }
 
-    setDayMode(existingLeaveType || 'work');
-    setSelectedDay({ date: dayObj.date, dateStr });
+    setDayMode(existingLeaveType || (status === 'future' ? 'annual_leave' : 'work'));
+    setSelectedDay({ date: dayObj.date, dateStr, isFuture: status === 'future' });
     setSaveMsg(null);
   };
 
@@ -374,6 +391,12 @@ export default function DailyLogging() {
           notes: r.notes || '',
           activity_id: r.activity_id || null,
         }));
+
+      if (selectedDay.isFuture && dayMode === 'work') {
+        setSaveMsg('Future days can only be planned as leave.');
+        setIsSaving(false);
+        return;
+      }
 
       if (dayMode !== 'work') {
         const markerProjectId = modalRows.find(r => r.project_id)?.project_id || projects[0]?.id;
@@ -453,7 +476,9 @@ export default function DailyLogging() {
       for (let i = 0; i < 5; i++) {
         const dateKey = toDateKey(cursor);
         const entry = totals.get(dateKey);
-        if (!holidaySet.has(dateKey) && !entry?.leave && (entry?.hours || 0) < 8) {
+        // Pre-go-live days are not required, same as holidays.
+        const beforeLive = goLive ? cursor < goLive : false;
+        if (!holidaySet.has(dateKey) && !beforeLive && !entry?.leave && (entry?.hours || 0) < 8) {
           shortDays.push(cursor.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }));
         }
         cursor.setDate(cursor.getDate() + 1);
@@ -580,7 +605,7 @@ export default function DailyLogging() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-[11px] font-semibold">
+            <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold">
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-success"></div>
                 <span className="text-text_secondary">Logged</span>
@@ -590,21 +615,25 @@ export default function DailyLogging() {
                 <span className="text-text_secondary">Incomplete</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-gold-500"></div>
-                  <span className="text-text_secondary">Leave</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-purple-500"></div>
+                <span className="text-text_secondary">Annual leave</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                <span className="text-text_secondary">Sick leave</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-pink-500"></div>
+                <span className="text-text_secondary">Public holiday</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-danger"></div>
                 <span className="text-text_secondary">Missing</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-background border border-border"></div>
-                <span className="text-text_secondary">Upcoming</span>
-              </div>
             </div>
           </div>
 
-          {/* Calendar Grid — compact */}
+          {/* Calendar Grid | compact */}
           <div className="p-4">
             <div className={`grid ${calendarGridCols} gap-1.5 mb-1.5`}>
               {visibleDayHeaders.map(day => (
@@ -637,9 +666,9 @@ export default function DailyLogging() {
                     borderClass = 'border-border/30';
                     break;
                   case 'holiday':
-                    bgClass = 'bg-gold-100';
-                    textClass = 'text-gold-600';
-                    borderClass = 'border-gold-500/30';
+                    bgClass = 'bg-pink-100';
+                    textClass = 'text-pink-600';
+                    borderClass = 'border-pink-500/30';
                     break;
                   case 'loading':
                     bgClass = 'bg-background';
@@ -647,9 +676,10 @@ export default function DailyLogging() {
                     borderClass = 'border-border/50';
                     break;
                   case 'future':
-                    bgClass = 'bg-background';
-                    textClass = 'text-text_secondary/50';
-                    borderClass = 'border-border/50';
+                    bgClass = 'bg-background hover:bg-navy-50';
+                    textClass = 'text-text_secondary/70';
+                    borderClass = 'border-border/60 hover:border-navy-800/30';
+                    isClickable = true;
                     break;
                   case 'missed':
                     bgClass = 'bg-danger';
@@ -669,10 +699,16 @@ export default function DailyLogging() {
                     borderClass = 'border-warning';
                     isClickable = true;
                     break;
-                  case 'leave':
-                    bgClass = 'bg-gold-500';
+                  case 'pre_live':
+                    bgClass = 'bg-success';
                     textClass = 'text-white';
-                    borderClass = 'border-gold-500';
+                    borderClass = 'border-success';
+                    isClickable = false;
+                    break;
+                  case 'leave':
+                    bgClass = logData?.leaveType === 'sick_leave' ? 'bg-blue-500' : 'bg-purple-500';
+                    textClass = 'text-white';
+                    borderClass = logData?.leaveType === 'sick_leave' ? 'border-blue-500' : 'border-purple-500';
                     isClickable = true;
                     break;
                   case 'not_logged':
@@ -701,7 +737,7 @@ export default function DailyLogging() {
                     </div>
 
                     {status === 'logged' && logData && (
-                      <span className="text-[10px] font-semibold opacity-90 mt-auto">{logData.totalHours}h</span>
+                      <span className="text-[10px] font-semibold opacity-90 mt-auto">Logged</span>
                     )}
                     {status === 'incomplete' && logData && (
                       <span className="text-[10px] font-semibold opacity-90 mt-auto">{logData.totalHours}h</span>
@@ -713,7 +749,7 @@ export default function DailyLogging() {
                       <span className="text-[10px] font-semibold opacity-90 mt-auto">Missing</span>
                     )}
                     {status === 'future' && (
-                      <span className="text-[10px] font-semibold opacity-70 mt-auto">Upcoming</span>
+                      <span className="text-[9px] font-semibold text-text_secondary/50 mt-auto">Plan leave</span>
                     )}
                     {status === 'loading' && (
                       <span className="text-[10px] opacity-70 mt-auto">Loading…</span>
@@ -760,12 +796,12 @@ export default function DailyLogging() {
               </div>
 
               <div className="px-6 pt-5">
-                <div className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-background p-1">
-                  {[
-                    ['work', 'Work day'],
+                <div className={`grid ${selectedDay.isFuture ? 'grid-cols-2' : 'grid-cols-3'} gap-2 rounded-xl border border-border bg-background p-1`}>
+                  {([
+                    ...(selectedDay.isFuture ? [] : [['work', 'Work day']] as [string, string][]),
                     ['annual_leave', 'Annual leave'],
                     ['sick_leave', 'Sick leave'],
-                  ].map(([value, label]) => (
+                  ] as [string, string][]).map(([value, label]) => (
                     <button
                       key={value}
                       type="button"
@@ -776,14 +812,28 @@ export default function DailyLogging() {
                     </button>
                   ))}
                 </div>
+                {selectedDay.isFuture && (
+                  <p className="mt-2.5 text-[11px] font-semibold text-blue-700 flex items-center gap-1.5">
+                    <CalendarClock className="h-3.5 w-3.5" />
+                    Leave planning: pre-book this future day. Work hours can only be logged on or after the day itself.
+                  </p>
+                )}
               </div>
 
               {/* Project Rows */}
               <div className="p-6 space-y-3 max-h-[50vh] overflow-y-auto">
                 {dayMode !== 'work' ? (
-                  <div className="rounded-xl border border-warning/20 bg-warning-bg p-5 text-center">
-                    <p className="text-sm font-bold text-warning dark: mb-1">{getLeaveLabel(dayMode)} recorded</p>
-                    <p className="text-xs text-warning/70 dark:/70">This day will be marked as {getLeaveLabel(dayMode).toLowerCase()}. No hours entry is required.</p>
+                  <div className={`rounded-xl border p-5 text-center ${
+                    dayMode === 'sick_leave' ? 'border-blue-500/25 bg-blue-50' : 'border-purple-500/25 bg-purple-50'
+                  }`}>
+                    <p className={`text-sm font-bold mb-1 ${dayMode === 'sick_leave' ? 'text-blue-700' : 'text-purple-700'}`}>
+                      {selectedDay.isFuture ? 'Will be booked as ' : ''}{getLeaveLabel(dayMode)}{selectedDay.isFuture ? '' : ' recorded'}
+                    </p>
+                    <p className={`text-xs ${dayMode === 'sick_leave' ? 'text-blue-600/70' : 'text-purple-600/70'}`}>
+                      {selectedDay.isFuture
+                        ? `This day will show on your calendar as ${getLeaveLabel(dayMode).toLowerCase()} straight away.`
+                        : `This day is marked as ${getLeaveLabel(dayMode).toLowerCase()}. No hours entry is required.`}
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -813,7 +863,7 @@ export default function DailyLogging() {
                                 const usedElsewhere = modalRows.some((r, ri) => ri !== idx && r.project_id === p.id);
                                 if (usedElsewhere && !isThisRow) return null;
                                 return (
-                                  <option key={p.id} value={p.id}>{p.code} — {p.name}</option>
+                                  <option key={p.id} value={p.id}>{p.code} | {p.name}</option>
                                 );
                               })}
                             </select>
@@ -830,7 +880,7 @@ export default function DailyLogging() {
                             >
                               <option value="">Select activity (optional)…</option>
                               {activitiesByProject[row.project_id].map(a => (
-                                <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
+                                <option key={a.id} value={a.id}>{a.code} | {a.name}</option>
                               ))}
                             </select>
                           </div>

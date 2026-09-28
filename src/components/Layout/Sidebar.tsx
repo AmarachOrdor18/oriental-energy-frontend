@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import {
   LayoutDashboard, Users, Settings, LogOut,
-  BarChart3, Inbox, FileText, Calendar, PieChart,
+  BarChart3, Inbox, FileText, Calendar, PieChart, Activity, Banknote, Target,
   PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth';
@@ -53,12 +53,15 @@ export default function Sidebar() {
       label: 'Reporting',
       items: [
         { label: 'Reports', path: '/reports', icon: PieChart, match: (l) => l.startsWith('/reports') },
+        { label: 'Utilisation', path: '/utilisation', icon: Activity, match: (l) => l.startsWith('/utilisation') },
+        { label: 'Budgets', path: '/budgets', icon: Target, match: (l) => l.startsWith('/budgets') },
       ],
     },
     {
       label: 'Control',
       items: [
         { label: 'Administration', path: '/admin', icon: Settings, match: (l) => l.startsWith('/admin') },
+        { label: 'Rate Cards', path: '/rate-cards', icon: Banknote, match: (l) => l.startsWith('/rate-cards') },
       ],
     },
   ];
@@ -66,7 +69,7 @@ export default function Sidebar() {
   const roleAllows = (group: NavGroupDef) => {
     switch (group.label) {
       case 'Approvals': return ['line_manager', 'hod', 'admin'].includes(role);
-      case 'Finance': return ['finance', 'admin'].includes(role);
+      case 'Finance': return ['finance', 'admin', 'hod'].includes(role);
       case 'Reporting': return ['finance', 'admin', 'line_manager', 'hod'].includes(role);
       case 'Control': return role === 'admin';
       default: return true;
@@ -89,16 +92,17 @@ export default function Sidebar() {
   return (
     <aside
       className={`bg-navy-900 text-white flex flex-col flex-shrink-0 fixed left-0 z-50 shadow-xl transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'w-14 h-screen top-0 bottom-auto' : 'w-64 h-screen top-0'
+        isCollapsed ? 'w-12 h-screen top-0 bottom-auto' : 'w-64 h-screen top-0'
       }`}
     >
-      {/* Brand + collapse */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-navy-800 shrink-0">
+      {/* Brand + collapse | collapsed: button under logo; expanded: button right of logo */}
+      <div className={`border-b border-navy-800 shrink-0 ${isCollapsed ? 'flex flex-col items-center gap-2 py-3 px-1' : 'flex flex-row items-center justify-between gap-2 py-3 px-4'}`}>
         {!isCollapsed ? (
-          <img src="/oriental-logo.jpg" alt="Oriental Energy" className="h-10 w-auto rounded" />
+          <img src="/oriental-logo.jpg" alt="Oriental Energy" className="h-9 w-auto rounded" />
         ) : (
-          <div className="w-9 h-9 rounded-lg bg-gold-500 flex items-center justify-center font-bold text-navy-900 text-sm">O</div>
-        )}          <button
+          <img src="/oriental-logo.jpg" alt="Oriental Energy" className="h-7 w-auto rounded" />
+        )}
+        <button
           onClick={() => setIsCollapsed((prev) => !prev)}
           title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="p-1.5 text-gray-400 hover:text-white hover:bg-navy-800 rounded-lg transition-colors"
@@ -108,17 +112,12 @@ export default function Sidebar() {
       </div>
 
       {isCollapsed ? (
-        /* Collapsed → icon rail with bottom strip */
+        /* Collapsed → pure icon rail: icons only, sign-out icon at the bottom */
         <>
-          {/* Icon rail */}
           <div className="flex-1 overflow-y-auto py-4 custom-scrollbar overflow-x-hidden scrollbar-hide">
             {navGroups.filter(roleAllows).map((group) => (
               <div key={group.label} className="mb-2">
-                {!isCollapsed ? (
-                  <h2 className="nav-group-label">{group.label}</h2>
-                ) : (
-                  <div className="px-4 mb-2 opacity-20" />
-                )}
+                <div className="mx-auto mb-2 h-px w-6 bg-white/10" />
                 <ul>
                   {group.items.map((item) => {
                     const isActive = item.match(location);
@@ -126,12 +125,14 @@ export default function Sidebar() {
                       <li key={item.label} title={item.label}>
                         <button
                           onClick={() => setLocation(item.path)}
-                          className={`flex w-full items-center justify-center py-2.5 transition-all duration-200 border-l-[3px] ${
+                          data-tour={`nav-${item.path.replace('/', '').replace('/', '-')}`}
+                          className={`flex w-full items-center justify-center py-2.5 transition-all duration-200 ${
                             isActive
-                              ? 'bg-navy-700 border-gold-500 text-white shadow-inner'
-                              : 'border-transparent text-gray-400 hover:bg-navy-800 hover:text-white'
+                              ? 'bg-navy-700 text-white shadow-inner relative'
+                              : 'text-gray-400 hover:bg-navy-800 hover:text-white'
                           }`}
                         >
+                          {isActive && <span className="absolute left-0 top-0 bottom-0 w-[3px] bg-gold-500" />}
                           <item.icon
                             className={`w-4 h-4 transition-transform ${
                               isActive ? 'text-gold-500 scale-110' : ''
@@ -146,30 +147,14 @@ export default function Sidebar() {
             ))}
           </div>
 
-          {/* Bottom panel: nav labels + logout, pinned under the rail */}
-          <div className="flex flex-col items-start p-2 border-t border-navy-700 bg-navy-950 w-56 rounded-t-xl mt-auto">
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-medium text-gray-400 mb-2">
-              {navGroups.filter(roleAllows).flatMap((g) =>
-                g.items.map((item) => (
-                  <span
-                    key={item.label}
-                    className={`truncate max-w-[120px] ${
-                      item.match(location) ? 'text-white font-bold' : ''
-                    }`}
-                    title={item.label}
-                  >
-                    {item.label}
-                  </span>
-                ))
-              )}
-            </div>
+          {/* Rail footer: sign-out icon only */}
+          <div className="p-2 border-t border-navy-700 bg-navy-950 flex justify-center">
             <button
               onClick={handleLogout}
               title="Sign out"
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-navy-800 transition-all"
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-navy-800 transition-all"
             >
               <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
             </button>
           </div>
         </>
@@ -192,6 +177,7 @@ export default function Sidebar() {
                       <li key={item.label} title={isCollapsed ? item.label : ''}>
                         <button
                           onClick={() => setLocation(item.path)}
+                          data-tour={`nav-${item.path.replace('/', '').replace('/', '-')}`}
                           className={`flex w-full items-center py-2.5 transition-all duration-200 border-l-[3px] ${
                             isCollapsed ? 'justify-center px-0' : 'px-6'
                           } ${

@@ -157,7 +157,7 @@ export default function Submissions() {
                     <option value="approved">Approved</option>
                     <option value="rejected">Returned</option>
                     <option value="overdue">Overdue</option>
-                    <option value="period_closed_no_submission">Period Closed — No Submission</option>
+                    <option value="period_closed_no_submission">Period Closed | No Submission</option>
                   </select>
                   <input
                     type="date"
@@ -246,7 +246,7 @@ export default function Submissions() {
                           <td>
                             {submittedAt
                               ? submittedAt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-                              : <span className="text-gray-400">—</span>}
+                              : <span className="text-gray-400">N/A</span>}
                           </td>
                           <td><StatusBadge status={approvalLabel[ts.status] || 'Draft'} /></td>
                           <td>

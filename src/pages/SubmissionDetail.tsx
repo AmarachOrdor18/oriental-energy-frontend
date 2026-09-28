@@ -371,7 +371,7 @@ export default function SubmissionDetail() {
                       ? timesheet.rejection_reason ? `"${timesheet.rejection_reason}"` : 'Returned to employee'
                       : timesheet.submitted_at
                       ? 'In progress…'
-                      : '—',
+                      : 'N/A',
                     done: !!timesheet.approved_at,
                     active: !!timesheet.submitted_at && !timesheet.approved_at && timesheet.status !== 'rejected',
                     failed: timesheet.status === 'rejected',
@@ -379,7 +379,7 @@ export default function SubmissionDetail() {
                   {
                     actor: 'System',
                     label: timesheet.status === 'approved' ? 'Posted' : 'Pending Post',
-                    detail: timesheet.status === 'approved' ? 'Authorised and posted' : '—',
+                    detail: timesheet.status === 'approved' ? 'Authorised and posted' : 'N/A',
                     done: timesheet.status === 'approved',
                     active: false,
                     failed: false,

@@ -54,7 +54,7 @@ export function useTableControls<T extends Record<string, any>>(
     search, setSearch,
     page: safePage, setPage,
     pageSize, setPageSize,
-    paged, totalItems, totalPages,
+    paged, sorted, totalItems, totalPages,
     sortKey, sortDir, toggleSort,
   };
 }

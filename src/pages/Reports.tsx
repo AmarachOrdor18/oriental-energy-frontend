@@ -242,7 +242,7 @@ export default function Reports() {
             <div className="p-5 border-b border-border flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">
-                  Timesheets Not Posted — Period {notPostedResults.period?.period_code}
+                  Timesheets Not Posted | Period {notPostedResults.period?.period_code}
                 </h2>
                 <p className="text-xs text-text_secondary mt-1">
                   {notPostedResults.not_posted?.length || 0} employee(s) with no submission
@@ -290,8 +290,8 @@ export default function Reports() {
                           <p className="text-sm font-bold text-text_primary">{row.name}</p>
                           <p className="text-xs text-text_secondary">{row.email}</p>
                         </td>
-                        <td className="px-5 py-3 text-sm text-text_secondary">{row.department_name || '—'}</td>
-                        <td className="px-5 py-3 text-sm text-text_secondary">{row.manager_name || '—'}</td>
+                        <td className="px-5 py-3 text-sm text-text_secondary">{row.department_name || 'N/A'}</td>
+                        <td className="px-5 py-3 text-sm text-text_secondary">{row.manager_name || 'N/A'}</td>
                         <td className="px-5 py-3 text-xs">
                           {row.last_submitted ? (
                             new Date(row.last_submitted).toLocaleDateString('en-GB')
@@ -350,8 +350,8 @@ export default function Reports() {
                         <p className="text-sm font-bold text-text_primary">{row.user_name || row.name}</p>
                         <p className="text-xs text-text_secondary font-mono">{row.user_id}</p>
                       </td>
-                      <td className="px-5 py-3 text-sm text-text_secondary">{row.department_name || '—'}</td>
-                      <td className="px-5 py-3 text-sm text-text_secondary">{row.project_name || '—'}</td>
+                      <td className="px-5 py-3 text-sm text-text_secondary">{row.department_name || 'N/A'}</td>
+                      <td className="px-5 py-3 text-sm text-text_secondary">{row.project_name || 'N/A'}</td>
                       <td className="px-5 py-3 text-right">
                         <span className="text-sm font-bold text-text_primary">
                           {parseFloat(row.total_hours || 0).toFixed(1)}h

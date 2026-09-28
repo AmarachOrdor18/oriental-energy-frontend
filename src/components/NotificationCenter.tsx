@@ -57,7 +57,7 @@ export default function NotificationCenter() {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button onClick={() => setIsOpen(!isOpen)} className="relative p-2 text-text_secondary hover:text-text_primary hover:bg-surface rounded-lg transition-colors">
+      <button onClick={() => setIsOpen(!isOpen)} data-tour="topbar-bell" className="relative p-2 text-text_secondary hover:text-text_primary hover:bg-surface rounded-lg transition-colors">
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-danger border-2 border-background" />

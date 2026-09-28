@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/Layout/DashboardLayout';
-import { Users, ArrowRight, Send, Check } from 'lucide-react';
+import { Users, ArrowRight, Send, Check, Clock, History, Trash2, CalendarClock } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const DEFAULT_BROADCAST = 'Please remember to submit your timesheet for this week by end of day.';
 const PAGE_SIZE = 10;
@@ -19,6 +19,9 @@ export default function Team() {
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [showBroadcast, setShowBroadcast] = useState(false);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
+  const [scheduleAt, setScheduleAt] = useState('');
+  const [broadcasts, setBroadcasts] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const [page, setPage] = useState(1);
 
   useEffect(() => { loadTeam(); }, []);
@@ -46,18 +49,20 @@ export default function Team() {
   const handleBroadcast = async () => {
     setIsBroadcasting(true);
     try {
-      const targets = broadcastTarget === 'defaulters'
-        ? teamMembers.filter(m => !m.recentTs || m.recentTs.status === 'draft' || m.recentTs.status === 'overdue')
-        : teamMembers;
-      if (targets.length === 0) { alert('No defaulters found this week.'); setIsBroadcasting(false); return; }
-      await api.broadcastReminder(broadcastMsg, broadcastTarget === 'defaulters');
+      await api.createBroadcast(broadcastMsg, broadcastTarget === 'defaulters', scheduleAt || undefined);
       setBroadcastSuccess(true);
+      setScheduleAt('');
+      loadBroadcasts();
       setTimeout(() => { setShowBroadcast(false); setBroadcastSuccess(false); setBroadcastMsg(DEFAULT_BROADCAST); setBroadcastTarget('all'); }, 2000);
-    } catch (err) {
-      alert('Failed to send broadcast');
+    } catch (err: any) {
+      alert(err?.message || 'Failed to send broadcast');
     } finally {
       setIsBroadcasting(false);
     }
+  };
+
+  const loadBroadcasts = async () => {
+    try { setBroadcasts(await api.getBroadcasts()); } catch { /* non-fatal */ }
   };
 
   const statusColor = (status: string) => {
@@ -85,9 +90,14 @@ export default function Team() {
             <h1 className="page-header-title">Team Management</h1>
             <p className="page-header-sub">Overview of your direct reports and their timesheet status.</p>
           </div>
-          <button onClick={() => setShowBroadcast(!showBroadcast)} className="btn-solid">
-            <Send className="h-4 w-4" /> Broadcast Reminder
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => { setShowHistory(!showHistory); if (!showHistory) loadBroadcasts(); }} className="btn-outline">
+              <History className="h-4 w-4" /> Past Broadcasts
+            </button>
+            <button onClick={() => setShowBroadcast(!showBroadcast)} className="btn-solid">
+              <Send className="h-4 w-4" /> Broadcast Reminder
+            </button>
+          </div>
         </div>
 
         {/* Broadcast Panel */}
@@ -112,22 +122,97 @@ export default function Team() {
                     </label>
                   ))}
                 </div>
-                <div className="flex items-end gap-3">
-                  <div className="flex-1">
-                    <textarea
-                      value={broadcastMsg}
-                      onChange={(e) => setBroadcastMsg(e.target.value)}
-                      rows={2}
-                      className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                    />
-                    <p className="text-[10px] text-text_secondary mt-1">Default message pre-filled. Edit as needed.</p>
+                <div className="space-y-3">
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <textarea
+                        value={broadcastMsg}
+                        onChange={(e) => setBroadcastMsg(e.target.value)}
+                        rows={2}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                      />
+                      <p className="text-[10px] text-text_secondary mt-1">Default message pre-filled. Edit as needed.</p>
+                    </div>
+                    <button onClick={handleBroadcast} disabled={isBroadcasting || !broadcastMsg.trim()} className="btn-solid !px-6">
+                      {isBroadcasting ? 'Working…' : scheduleAt ? 'Schedule' : 'Send'}
+                    </button>
                   </div>
-                  <button onClick={handleBroadcast} disabled={isBroadcasting || !broadcastMsg.trim()} className="btn-solid !px-6">{isBroadcasting ? 'Sending…' : 'Send'}</button>
+                  <div className="flex items-center gap-2">
+                    <CalendarClock className="h-4 w-4 text-text_secondary" />
+                    <label className="text-xs font-semibold text-text_secondary">Schedule for later (optional):</label>
+                    <input
+                      type="datetime-local"
+                      value={scheduleAt}
+                      onChange={(e) => setScheduleAt(e.target.value)}
+                      className="input-base w-auto text-sm"
+                    />
+                    {scheduleAt && (
+                      <button onClick={() => setScheduleAt('')} className="text-xs font-semibold text-danger hover:underline">Clear</button>
+                    )}
+                  </div>
+                  {scheduleAt && (
+                    <p className="text-[11px] text-text_secondary">
+                      This reminder will be delivered automatically at the chosen time. Recipients are worked out at delivery, so late defaulters are still caught.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
           </motion.div>
         )}
+
+        {/* Broadcast History */}
+        <AnimatePresence>
+          {showHistory && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+              className="mb-8 bg-surface border border-border rounded-xl p-6 shadow-sm overflow-hidden">
+              <h2 className="text-sm font-bold text-navy-900 mb-4 flex items-center gap-2">
+                <History className="h-4 w-4" /> Broadcast History
+              </h2>
+              {broadcasts.length === 0 ? (
+                <p className="text-xs text-text_secondary py-4 text-center">No broadcasts yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {broadcasts.map((b: any) => (
+                    <div key={b.id} className="flex items-start justify-between gap-4 rounded-lg border border-border bg-background p-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-text_primary truncate">{b.message}</p>
+                        <p className="text-[11px] text-text_secondary mt-0.5 flex items-center gap-2 flex-wrap">
+                          {b.status === 'sent' ? (
+                            <>
+                              <Check className="h-3 w-3 text-success" />
+                              <span className="text-success font-bold">Sent</span>
+                              {b.sent_at && <span>{new Date(b.sent_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>}
+                              {b.recipient_count != null && <span>to {b.recipient_count} recipient{b.recipient_count === 1 ? '' : 's'}</span>}
+                            </>
+                          ) : b.status === 'scheduled' ? (
+                            <>
+                              <Clock className="h-3 w-3 text-warning" />
+                              <span className="text-warning font-bold">Scheduled</span>
+                              {b.scheduled_for && <span>for {new Date(b.scheduled_for).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>}
+                            </>
+                          ) : (
+                            <><span className="text-text_secondary font-bold">Cancelled</span></>
+                          )}
+                          {b.defaulters_only && <span className="px-1.5 py-0.5 rounded bg-warning-bg text-warning text-[10px] font-bold">Defaulters only</span>}
+                        </p>
+                      </div>
+                      {b.status === 'scheduled' && (
+                        <button
+                          onClick={async () => { try { await api.cancelBroadcast(b.id); loadBroadcasts(); } catch { alert('Failed to cancel.'); } }}
+                          title="Cancel this scheduled broadcast"
+                          className="p-2 rounded-lg text-text_secondary hover:text-danger hover:bg-danger-bg transition-colors flex-shrink-0"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Team Table */}
         <div className="table-datagrid-container">

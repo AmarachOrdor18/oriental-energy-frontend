@@ -229,6 +229,11 @@
   .table-datagrid th {
     @apply bg-gray-50/50 border-b border-gray-100 py-2.5 px-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider;
   }
+  /* SortableTh emits this class; give it the same padding as plain th cells */
+  .table-datagrid-th {
+    @apply bg-gray-50/50 border-b border-gray-100 py-2.5 px-3 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider;
+  }
+  .dark .table-datagrid-th { @apply border-gray-800 text-gray-500 bg-gray-900/40; }
   .table-datagrid td {
     @apply border-b border-gray-50 py-2.5 px-3 text-[13px] text-gray-700 font-medium whitespace-nowrap overflow-hidden text-ellipsis;
   }
@@ -266,6 +271,28 @@
   }
   .dark .input-base {
     @apply border-gray-700 placeholder-gray-500 bg-surface;
+  }
+  /* Selects: lighter chevron + breathing room before it (both themes) */
+  select.input-base {
+    @apply pr-10;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23b0b7c3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    cursor: pointer;
+  }
+  .dark select.input-base {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2374808f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+  /* Inline selects (not using .input-base) get the same treatment */
+  select:not(.input-base) {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23b0b7c3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+  }
+  .dark select:not(.input-base) {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2374808f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   }
   .field-label {
     @apply block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2;

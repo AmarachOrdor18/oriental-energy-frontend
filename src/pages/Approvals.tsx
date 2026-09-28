@@ -7,6 +7,7 @@ import {
 import { useLocation } from 'wouter';
 import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import TimesheetDetailPanel from '../components/Approvals/TimesheetDetailPanel';
 
 type ViewMode = 'weekly' | 'monthly';
 
@@ -36,6 +37,9 @@ export default function Approvals() {
 
   // Month approve confirmation
   const [monthApproveModal, setMonthApproveModal] = useState<{ userId: string; userName: string; periodCode: string; count: number } | null>(null);
+
+  // Slide-over detail panel
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   useEffect(() => { loadApprovals(); }, []);
 
@@ -202,7 +206,7 @@ export default function Approvals() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-4 cursor-pointer" onClick={() => setLocation(`/timesheets/${ts.id}`)}>
+                        <td className="px-5 py-4 cursor-pointer" onClick={() => setDetailId(ts.id)}>
                           <p className="text-sm font-semibold text-text_primary">
                             {new Date(ts.week_start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – {new Date(ts.week_end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                           </p>
@@ -229,7 +233,7 @@ export default function Approvals() {
                               className="p-2 text-text_secondary hover:text-success hover:bg-success-bg rounded-lg transition-colors" title="Approve">
                               <CheckCircle className="h-5 w-5" />
                             </button>
-                            <button onClick={() => setLocation(`/timesheets/${ts.id}`)}
+                            <button onClick={() => setDetailId(ts.id)}
                               className="p-2 text-text_secondary hover:text-navy-700 hover:bg-navy-50 rounded-lg transition-colors" title="View">
                               <ArrowRight className="h-5 w-5" />
                             </button>
@@ -290,7 +294,7 @@ export default function Approvals() {
                           className="p-2 text-text_secondary hover:text-success hover:bg-success-bg rounded-lg transition-colors" title="Approve">
                           <CheckCircle className="h-4 w-4" />
                         </button>
-                        <button onClick={() => setLocation(`/timesheets/${group.weeks[0]?.id}`)}
+                        <button onClick={() => setDetailId(group.weeks[0]?.id)}
                           className="p-2 text-text_secondary hover:text-navy-700 hover:bg-navy-50 rounded-lg transition-colors" title="View">
                           <ArrowRight className="h-4 w-4" />
                         </button>
@@ -322,7 +326,7 @@ export default function Approvals() {
                                   <div className="flex items-center justify-end gap-1">
                                     <button onClick={() => openReturnModal(ts.id)} className="p-1.5 text-text_secondary hover:text-danger hover:bg-danger-bg rounded-lg transition-colors"><XCircle className="h-4 w-4" /></button>
                                     <button onClick={() => handleApprove(ts.id)} className="p-1.5 text-text_secondary hover:text-success hover:bg-success-bg rounded-lg transition-colors"><CheckCircle className="h-4 w-4" /></button>
-                                    <button onClick={() => setLocation(`/timesheets/${ts.id}`)} className="p-1.5 text-text_secondary hover:text-navy-700 hover:bg-navy-50 rounded-lg transition-colors"><ArrowRight className="h-4 w-4" /></button>
+                                    <button onClick={() => setDetailId(ts.id)} className="p-1.5 text-text_secondary hover:text-navy-700 hover:bg-navy-50 rounded-lg transition-colors"><ArrowRight className="h-4 w-4" /></button>
                                   </div>
                                 </td>
                               </tr>
@@ -337,6 +341,15 @@ export default function Approvals() {
             })}
           </div>
         )}
+
+        {/* Slide-over timesheet detail panel */}
+        <TimesheetDetailPanel
+          timesheetId={detailId}
+          onClose={() => setDetailId(null)}
+          onApprove={(id) => handleApprove(id)}
+          onReturn={(id) => { setDetailId(null); openReturnModal(id); }}
+          isProcessing={isProcessing}
+        />
 
         {/* Month Approve Confirmation Modal */}
         <AnimatePresence>
@@ -382,7 +395,7 @@ export default function Approvals() {
                 <p className="text-sm text-text_secondary mb-4">Provide a reason for returning this timesheet. The employee will be notified.</p>
                 <textarea
                   value={returnReason} onChange={e => setReturnReason(e.target.value)}
-                  placeholder="e.g. Please check hours on Tuesday — Rig Maintenance project."
+                  placeholder="e.g. Please check hours on Tuesday, Rig Maintenance project."
                   className="w-full bg-background border border-border rounded-xl p-3 text-sm text-text_primary focus:outline-none focus:ring-2 focus:ring-gold-500/30 min-h-[100px] resize-none mb-6"
                 />
                 <div className="flex gap-3">

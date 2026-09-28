@@ -144,8 +144,8 @@ export default function TimesheetDetail() {
     return 'Work';
   };
   const dayStatusTone = (leaveType?: string) => {
-    if (leaveType === 'annual_leave') return 'border-warning/20 bg-warning-bg text-warning dark:border-warning/20  ';
-    if (leaveType === 'sick_leave') return 'border-gold-500/30 bg-gold-100 text-gold-600 dark: dark:bg-gold-100 ';
+    if (leaveType === 'annual_leave') return 'border-purple-500/30 bg-purple-100 text-purple-700';
+    if (leaveType === 'sick_leave') return 'border-blue-500/30 bg-blue-100 text-blue-700';
     return 'border-border bg-surface text-text_secondary hover:border-navy-800/30 hover:text-navy-800';
   };
 
@@ -250,7 +250,7 @@ export default function TimesheetDetail() {
     try {
       await api.withdrawTimesheet(timesheetId);
       setTimesheetStatus('draft');
-      setSuccessMsg('Submission withdrawn — you can now edit and resubmit.');
+      setSuccessMsg('Submission withdrawn | you can now edit and resubmit.');
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to withdraw.');
     }
@@ -397,13 +397,13 @@ export default function TimesheetDetail() {
 
                     return (
                       <th key={i} className={`p-3 text-center border-l border-border/50 relative group/h min-w-[80px]
-                        ${holiday ? 'bg-gold-100' : leaveType ? 'bg-warning/5' : weekend ? 'bg-gray-100/50 /30' : ''}`}>
+                        ${holiday ? 'bg-pink-100' : leaveType ? 'bg-warning/5' : weekend ? 'bg-gray-100/50 /30' : ''}`}>
                         <div className="text-xs uppercase tracking-wider text-text_secondary font-bold">{day}</div>
                         <div className="text-sm text-text_primary mt-0.5">{days[i]?.getDate()}</div>
                         {/* Filled indicator */}
                         <div className={`h-1.5 w-1.5 rounded-full mx-auto mt-1 ${filled ? 'bg-success' : 'bg-gray-300 '}`} />
-                        {holiday && <div className="text-[7px] text-gold-600 font-bold uppercase mt-0.5 truncate px-1">{holiday}</div>}
-                        {leaveType && <div className={`text-[7px] font-bold uppercase mt-0.5 ${leaveType === 'annual_leave' ? 'text-warning' : 'text-gold-600'}`}>{leaveType.replace('_', ' ')}</div>}
+                        {holiday && <div className="text-[7px] text-pink-600 font-bold uppercase mt-0.5 truncate px-1">{holiday}</div>}
+                        {leaveType && <div className={`text-[7px] font-bold uppercase mt-0.5 ${leaveType === 'annual_leave' ? 'text-purple-700' : 'text-blue-700'}`}>{leaveType.replace('_', ' ')}</div>}
 
                         {!isLocked && !holiday && (
                           <button
