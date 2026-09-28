@@ -59,6 +59,7 @@ export const api = {
   updateUser: (id: string, data: any) => request(`/users/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   updateUserStatus: (id: string, is_active: boolean) => request(`/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ is_active }) }),
   getDirectReports: (id: string) => request(`/users/${id}/direct-reports`),
+  getTeamOverview: () => request('/users/team-overview'),
   getUserTimesheetSummary: (id: string, period?: string) => request(`/users/${id}/timesheet-summary${period ? `?period=${period}` : ''}`),
 
   // Departments

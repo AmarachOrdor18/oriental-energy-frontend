@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/Layout/DashboardLayout';
-import { Users, ArrowRight, Send, Check, Clock, History, Trash2, CalendarClock } from 'lucide-react';
+import { Users, Eye, Send, Check, Clock, History, Trash2, CalendarClock, ArrowRight, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import TimesheetDetailPanel from '../components/Approvals/TimesheetDetailPanel';
 import { useLocation } from 'wouter';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const DEFAULT_BROADCAST = 'Please remember to submit your timesheet for this week by end of day.';
 const PAGE_SIZE = 10;
@@ -23,21 +24,22 @@ export default function Team() {
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [page, setPage] = useState(1);
+  // Slide-over detail (same panel the Review Queue uses)
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  // Return-with-reason modal (same flow the Review Queue uses)
+  const [returnId, setReturnId] = useState<string | null>(null);
+  const [returnReason, setReturnReason] = useState('');
 
   useEffect(() => { loadTeam(); }, []);
 
   const loadTeam = async () => {
     try {
       if (user?.id) {
-        const reports = await api.getDirectReports(user.id);
-        const enriched = await Promise.all(reports.map(async (m: any) => {
-          try {
-            const summary = await api.getUserTimesheetSummary(m.id);
-            const recentTs = summary.timesheets?.[0];
-            return { ...m, recentTs };
-          } catch { return m; }
-        }));
-        setTeamMembers(enriched);
+        // One scoped endpoint, same rule as the Review Queue: direct reports for
+        // line managers, whole department for HODs — so the two pages agree.
+        const overview = await api.getTeamOverview();
+        setTeamMembers(overview);
       }
     } catch (err) {
       console.error('Load team error:', err);
@@ -265,11 +267,20 @@ export default function Team() {
                             <span className="text-xs text-text_secondary italic">No submissions</span>
                           )}
                         </td>
-                        <td className="px-5 py-4 text-right">
-                          <button onClick={() => setLocation(`/team/${member.id}`)}
-                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy-700 hover:text-navy-900 transition-colors">
-                            View <ArrowRight className="h-3.5 w-3.5" />
-                          </button>
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button onClick={() => setDetailId(member.recentTs?.id || null)}
+                              disabled={!member.recentTs}
+                              title={member.recentTs ? 'View latest timesheet' : 'No timesheet yet'}
+                              className="p-2 rounded-lg text-text_secondary hover:text-navy-700 hover:bg-navy-50 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors">
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => setLocation(`/team/${member.id}`)}
+                              title="Full history and drilldown"
+                              className="p-2 rounded-lg text-text_secondary hover:text-navy-700 hover:bg-navy-50 transition-colors">
+                              <ArrowRight className="h-4 w-4" />
+                            </button>
+                          </div>
                         </td>
                       </motion.tr>
                     ))}
@@ -289,6 +300,63 @@ export default function Team() {
             </>
           )}
         </div>
+
+        {/* Slide-over timesheet detail — the exact panel the Review Queue uses,
+            with a read-only approve/return for draft/submitted sheets. */}
+        <TimesheetDetailPanel
+          timesheetId={detailId}
+          onClose={() => setDetailId(null)}
+          onApprove={async (id) => {
+            setIsProcessing(true);
+            try { await api.approveTimesheet(id); setDetailId(null); } finally { setIsProcessing(false); }
+          }}
+          onReturn={(id) => { setReturnId(id); }}
+          isProcessing={isProcessing}
+        />
+
+        {/* Return-with-reason modal (mirrors the Review Queue flow) */}
+        <AnimatePresence>
+          {returnId && (
+            <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-surface border border-border rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-text_primary">Return timesheet</h3>
+                    <p className="text-xs text-text_secondary mt-0.5">It goes back to the person as a draft with your reason attached.</p>
+                  </div>
+                  <button onClick={() => setReturnId(null)} className="p-2 rounded-lg hover:bg-background text-text_secondary">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <textarea
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value)}
+                  rows={3}
+                  placeholder="Why is this being returned?"
+                  className="w-full bg-background border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none mb-4"
+                />
+                <div className="flex gap-3">
+                  <button onClick={() => setReturnId(null)} className="flex-1 py-2.5 border border-border rounded-xl text-sm font-semibold text-text_secondary hover:bg-background">Cancel</button>
+                  <button
+                    onClick={async () => {
+                      if (!returnReason.trim()) return;
+                      setIsProcessing(true);
+                      try {
+                        await api.rejectTimesheet(returnId, returnReason.trim());
+                        setReturnId(null); setReturnReason(''); setDetailId(null); loadTeam();
+                      } catch (err: any) { alert(err?.message || 'Failed to return.'); } finally { setIsProcessing(false); }
+                    }}
+                    disabled={isProcessing || !returnReason.trim()}
+                    className="flex-1 py-2.5 bg-gold-500 hover:bg-gold-600 text-navy-950 rounded-xl text-sm font-semibold disabled:opacity-50"
+                  >
+                    {isProcessing ? 'Working…' : 'Return timesheet'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </DashboardLayout>
   );
