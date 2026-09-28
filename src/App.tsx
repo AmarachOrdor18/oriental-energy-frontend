@@ -18,7 +18,7 @@ import RateCards from "./pages/RateCards";
 import Budgets from "./pages/Budgets";
 import { useEffect } from "react";
 
-function ProtectedRoute({ component: Component, allowedRoles, ...rest }: any) {
+function ProtectedRoute({ component: Component, page, allowedRoles, ...rest }: any) {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
@@ -33,7 +33,12 @@ function ProtectedRoute({ component: Component, allowedRoles, ...rest }: any) {
     return <Redirect to="/login" />;
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+  // Page-level access control: admin grants/denials on top of role defaults.
+  // Falls back to the legacy role list while permissions are still loading.
+  const denied = page
+    ? user && user.role !== 'admin' && Array.isArray(user.pages) && !user.pages.includes(page)
+    : allowedRoles && user && !allowedRoles.includes(user.role);
+  if (denied) {
     return <Redirect to="/dashboard" />;
   }
 
@@ -81,31 +86,31 @@ function AppRoutes() {
           {(params: any) => <ProtectedRoute component={SubmissionDetail} params={params} />}
         </Route>
         <Route path="/approvals">
-          <ProtectedRoute component={Approvals} allowedRoles={['line_manager', 'hod', 'admin']} />
+          <ProtectedRoute component={Approvals} page="approvals" allowedRoles={['line_manager', 'hod', 'admin']} />
         </Route>
         <Route path="/team">
-          <ProtectedRoute component={Team} allowedRoles={['line_manager', 'hod', 'admin']} />
+          <ProtectedRoute component={Team} page="team" allowedRoles={['line_manager', 'hod', 'admin']} />
         </Route>
         <Route path="/team/:userId">
-          {(params: any) => <ProtectedRoute component={MemberDrilldown} allowedRoles={['line_manager', 'hod', 'admin']} params={params} />}
+          {(params: any) => <ProtectedRoute component={MemberDrilldown} page="team" allowedRoles={['line_manager', 'hod', 'admin']} params={params} />}
         </Route>
         <Route path="/finance">
-          <ProtectedRoute component={Finance} allowedRoles={['finance', 'admin', 'hod']} />
+          <ProtectedRoute component={Finance} page="finance" allowedRoles={['finance', 'admin', 'hod']} />
         </Route>
         <Route path="/reports">
-          <ProtectedRoute component={Reports} allowedRoles={['finance', 'admin', 'line_manager', 'hod']} />
+          <ProtectedRoute component={Reports} page="reports" allowedRoles={['finance', 'admin', 'line_manager', 'hod']} />
         </Route>
         <Route path="/utilisation">
-          <ProtectedRoute component={Utilisation} allowedRoles={['finance', 'admin', 'line_manager', 'hod']} />
+          <ProtectedRoute component={Utilisation} page="utilisation" allowedRoles={['finance', 'admin', 'line_manager', 'hod']} />
         </Route>
         <Route path="/rate-cards">
-          <ProtectedRoute component={RateCards} allowedRoles={['admin']} />
+          <ProtectedRoute component={RateCards} page="rate-cards" allowedRoles={['admin']} />
         </Route>
         <Route path="/budgets">
-          <ProtectedRoute component={Budgets} allowedRoles={['finance', 'admin', 'hod']} />
+          <ProtectedRoute component={Budgets} page="budgets" allowedRoles={['finance', 'admin', 'hod']} />
         </Route>
         <Route path="/admin">
-          <ProtectedRoute component={Admin} allowedRoles={['admin']} />
+          <ProtectedRoute component={Admin} page="admin" allowedRoles={['admin']} />
         </Route>
 
         <Route>

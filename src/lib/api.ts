@@ -161,4 +161,10 @@ export const api = {
   getNotifications: () => request('/notifications'),
   markNotificationRead: (id: string) => request(`/notifications/${id}/read`, { method: 'PATCH' }),
   markAllRead: () => request('/notifications/mark-all-read', { method: 'POST' }),
+
+  // Access control (admin)
+  getPermissionCatalog: () => request('/permissions/pages'),
+  getUserPermissions: (userId: string) => request(`/permissions/users/${userId}`),
+  setUserPagePermission: (userId: string, pageKey: string, effect: 'allow' | 'deny' | 'inherit') =>
+    request(`/permissions/users/${userId}/${pageKey}`, { method: 'PUT', body: JSON.stringify({ effect }) }),
 };

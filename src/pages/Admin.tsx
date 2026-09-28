@@ -9,7 +9,7 @@ import { api } from '../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TablePagination, useTableControls } from '../components/ui/TableControls';
 
-type Tab = 'users' | 'departments' | 'projects' | 'activities' | 'periods' | 'holidays' | 'settings' | 'audit' | 'reports';
+type Tab = 'users' | 'departments' | 'projects' | 'activities' | 'periods' | 'holidays' | 'settings' | 'audit' | 'reports' | 'access';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState<Tab>('users');
@@ -21,6 +21,11 @@ export default function Admin() {
   const [health, setHealth] = useState<any>(null);
   const [settings, setSettings] = useState<any>({ min_daily_hours: '8', hour_enforcement_mode: 'block' });
   const [auditLog, setAuditLog] = useState<any[]>([]);
+  // Access Control state: user picker + their page matrix
+  const [accessSearch, setAccessSearch] = useState('');
+  const [accessUserId, setAccessUserId] = useState<string | null>(null);
+  const [accessDetail, setAccessDetail] = useState<any>(null);
+  const [accessBusy, setAccessBusy] = useState(false);
   const [auditTotal, setAuditTotal] = useState(0);
   const [auditOffset, setAuditOffset] = useState(0);
   const [auditFilters, setAuditFilters] = useState({ date_from: '', date_to: '', action: '' });
@@ -64,6 +69,29 @@ export default function Admin() {
   useEffect(() => { loadAll(); }, []);
   useEffect(() => { if (activeTab === 'audit') loadAuditLog(); }, [activeTab, auditOffset, auditFilters]);
   useEffect(() => { if (activeTab === 'settings') loadSettings(); }, [activeTab]);
+
+  const loadAccessDetail = async (userId: string) => {
+    setAccessUserId(userId);
+    setAccessDetail(null);
+    try { setAccessDetail(await api.getUserPermissions(userId)); } catch { /* surfaced by empty state */ }
+  };
+
+  const setAccessEffect = async (pageKey: string, effect: 'allow' | 'deny' | 'inherit') => {
+    if (!accessUserId) return;
+    setAccessBusy(true);
+    try {
+      await api.setUserPagePermission(accessUserId, pageKey, effect);
+      setAccessDetail(await api.getUserPermissions(accessUserId));
+      // Refresh the admin's own context in case they changed their own pages
+      // (no-op for admins, who always pass).
+    } finally {
+      setAccessBusy(false);
+    }
+  };
+
+  const accessCandidates = users.filter((u: any) =>
+    u.role !== 'admin' && `${u.name} ${u.email}`.toLowerCase().includes(accessSearch.toLowerCase())
+  );
 
   const loadAll = async () => {
     try {
@@ -198,6 +226,7 @@ export default function Admin() {
     { key: 'periods', label: 'Periods', icon: Calendar },
     { key: 'holidays', label: 'Holidays', icon: CalendarDays },
     { key: 'settings', label: 'Settings', icon: Settings },
+    { key: 'access', label: 'Access Control', icon: Lock },
     { key: 'audit', label: 'Audit Log', icon: Activity },
     { key: 'reports', label: 'Reports', icon: FileText },
   ];
@@ -249,6 +278,124 @@ export default function Admin() {
         </div>
 
         <div className="bg-surface border border-border rounded-2xl shadow-xl overflow-hidden">
+
+          {/* ACCESS CONTROL TAB */}
+          {activeTab === 'access' && (
+            <>
+              <div className="p-5 border-b border-border bg-background/30">
+                <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wider">Access Control</h2>
+                <p className="text-xs text-text_secondary mt-1">
+                  Choose a person, then set which pages they can open. Everyone starts with their role's defaults; Allow grants extra access, Deny removes it, Inherit returns to the role default. Changes take effect the next time the person loads a page.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-[320px_1fr]">
+                {/* User picker */}
+                <div className="border-b md:border-b-0 md:border-r border-border max-h-[520px] overflow-y-auto custom-scrollbar">
+                  <div className="p-4 sticky top-0 bg-surface border-b border-border">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text_secondary" />
+                      <input type="text" value={accessSearch} onChange={(e) => setAccessSearch(e.target.value)}
+                        placeholder="Find a person..."
+                        className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2 text-sm text-text_primary focus:outline-none focus:ring-1 focus:ring-navy-800/20" />
+                    </div>
+                  </div>
+                  <ul>
+                    {accessCandidates.slice(0, 60).map((u: any) => (
+                      <li key={u.id}>
+                        <button onClick={() => loadAccessDetail(u.id)}
+                          className={`w-full text-left px-4 py-2.5 border-b border-border/60 transition-colors ${accessUserId === u.id ? 'bg-navy-50 dark:bg-navy-900/40' : 'hover:bg-background'}`}>
+                          <span className="block text-sm font-semibold text-text_primary">{u.name}</span>
+                          <span className="block text-xs text-text_secondary">{u.email} | {u.role.replace('_', ' ')}</span>
+                        </button>
+                      </li>
+                    ))}
+                    {accessCandidates.length === 0 && (
+                      <li className="px-4 py-8 text-center text-sm text-text_secondary">No matching users.</li>
+                    )}
+                  </ul>
+                </div>
+
+                {/* Page matrix */}
+                <div className="p-5">
+                  {!accessUserId && (
+                    <div className="h-full min-h-[280px] flex flex-col items-center justify-center text-center text-text_secondary">
+                      <Lock className="h-8 w-8 mb-3 opacity-40" />
+                      <p className="text-sm font-semibold">Select a person on the left</p>
+                      <p className="text-xs mt-1 max-w-xs">Their pages appear here with the role defaults already applied. Admins always have full access and are not listed.</p>
+                    </div>
+                  )}
+                  {accessUserId && !accessDetail && (
+                    <div className="h-full min-h-[280px] flex items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-text_secondary" />
+                    </div>
+                  )}
+                  {accessUserId && accessDetail && (
+                    <div>
+                      <div className="flex items-center justify-between gap-3 mb-4">
+                        <div>
+                          <p className="text-sm font-bold text-text_primary">{accessDetail.user.name}</p>
+                          <p className="text-xs text-text_secondary">{accessDetail.user.email} | role default: {accessDetail.roleDefaults.length} pages</p>
+                        </div>
+                        {accessBusy && <Loader2 className="h-4 w-4 animate-spin text-text_secondary" />}
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-border text-left text-xs text-text_secondary uppercase tracking-wider">
+                              <th className="py-2 pr-4">Page</th>
+                              <th className="py-2 pr-4">Role default</th>
+                              <th className="py-2 pr-4">Access</th>
+                              <th className="py-2">Set</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {accessDetail.catalog.map((p: any) => {
+                              const isDefault = accessDetail.roleDefaults.includes(p.key);
+                              const override = accessDetail.overrides.find((o: any) => o.page_key === p.key);
+                              const effective = accessDetail.effective.includes(p.key);
+                              return (
+                                <tr key={p.key} className="border-b border-border/60">
+                                  <td className="py-2.5 pr-4">
+                                    <span className="font-semibold text-text_primary">{p.label}</span>
+                                    <span className="block text-xs text-text_secondary">{p.description}</span>
+                                  </td>
+                                  <td className="py-2.5 pr-4">
+                                    {isDefault
+                                      ? <span className="text-xs font-bold text-success">Yes</span>
+                                      : <span className="text-xs text-text_secondary">No</span>}
+                                  </td>
+                                  <td className="py-2.5 pr-4">
+                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${effective ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`}>
+                                      {effective ? 'Has access' : 'No access'}
+                                    </span>
+                                    {override && (
+                                      <span className="ml-2 text-[10px] font-bold uppercase text-gold-600">{override.effect}ed by admin</span>
+                                    )}
+                                  </td>
+                                  <td className="py-2.5">
+                                    <div className="flex gap-1">
+                                      <button disabled={accessBusy} onClick={() => setAccessEffect(p.key, 'allow')}
+                                        className="px-2 py-1 rounded-lg text-xs font-bold border border-border text-text_secondary hover:text-success hover:border-success/40 disabled:opacity-40">Allow</button>
+                                      <button disabled={accessBusy} onClick={() => setAccessEffect(p.key, 'deny')}
+                                        className="px-2 py-1 rounded-lg text-xs font-bold border border-border text-text_secondary hover:text-danger hover:border-danger/40 disabled:opacity-40">Deny</button>
+                                      {override && (
+                                        <button disabled={accessBusy} onClick={() => setAccessEffect(p.key, 'inherit')}
+                                          className="px-2 py-1 rounded-lg text-xs font-bold border border-gold-400/50 text-gold-600 hover:bg-gold-100 disabled:opacity-40">Inherit</button>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* USERS TAB */}
           {activeTab === 'users' && (

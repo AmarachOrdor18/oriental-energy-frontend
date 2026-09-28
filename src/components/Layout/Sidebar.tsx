@@ -11,6 +11,8 @@ interface NavItemDef {
   label: string;
   path: string;
   icon: any;
+  /** Page key in the permission catalog; undefined = always visible. */
+  page?: string;
   match: (loc: string) => boolean;
 }
 
@@ -21,7 +23,7 @@ interface NavGroupDef {
 
 export default function Sidebar() {
   const [location] = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, canAccess } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const role = user?.role || 'user';
@@ -39,29 +41,29 @@ export default function Sidebar() {
     {
       label: 'Approvals',
       items: [
-        { label: 'Team Members', path: '/team', icon: Users, match: (l) => l.startsWith('/team') },
-        { label: 'Review Queue', path: '/approvals', icon: Inbox, match: (l) => l.startsWith('/approvals') },
+        { label: 'Team Members', path: '/team', icon: Users, page: 'team', match: (l) => l.startsWith('/team') },
+        { label: 'Review Queue', path: '/approvals', icon: Inbox, page: 'approvals', match: (l) => l.startsWith('/approvals') },
       ],
     },
     {
       label: 'Finance',
       items: [
-        { label: 'Finance Review', path: '/finance', icon: BarChart3, match: (l) => l.startsWith('/finance') },
+        { label: 'Finance Review', path: '/finance', icon: BarChart3, page: 'finance', match: (l) => l.startsWith('/finance') },
       ],
     },
     {
       label: 'Reporting',
       items: [
-        { label: 'Reports', path: '/reports', icon: PieChart, match: (l) => l.startsWith('/reports') },
-        { label: 'Utilisation', path: '/utilisation', icon: Activity, match: (l) => l.startsWith('/utilisation') },
-        { label: 'Budgets', path: '/budgets', icon: Target, match: (l) => l.startsWith('/budgets') },
+        { label: 'Reports', path: '/reports', icon: PieChart, page: 'reports', match: (l) => l.startsWith('/reports') },
+        { label: 'Utilisation', path: '/utilisation', icon: Activity, page: 'utilisation', match: (l) => l.startsWith('/utilisation') },
+        { label: 'Budgets', path: '/budgets', icon: Target, page: 'budgets', match: (l) => l.startsWith('/budgets') },
       ],
     },
     {
       label: 'Control',
       items: [
-        { label: 'Administration', path: '/admin', icon: Settings, match: (l) => l.startsWith('/admin') },
-        { label: 'Rate Cards', path: '/rate-cards', icon: Banknote, match: (l) => l.startsWith('/rate-cards') },
+        { label: 'Administration', path: '/admin', icon: Settings, page: 'admin', match: (l) => l.startsWith('/admin') },
+        { label: 'Rate Cards', path: '/rate-cards', icon: Banknote, page: 'rate-cards', match: (l) => l.startsWith('/rate-cards') },
       ],
     },
   ];
@@ -75,6 +77,14 @@ export default function Sidebar() {
       default: return true;
     }
   };
+
+  // An item shows when the role gate passes AND page access allows it. The
+  // role gate keeps groups hidden for users with no business there; the page
+  // check honours admin grants/denials on top of the role.
+  const visibleGroups = navGroups
+    .filter(roleAllows)
+    .map((group) => ({ ...group, items: group.items.filter((item) => !item.page || canAccess(item.page)) }))
+    .filter((group) => group.items.length > 0);
 
   const handleLogout = async () => {
     await logout();
@@ -115,7 +125,7 @@ export default function Sidebar() {
         /* Collapsed → pure icon rail: icons only, sign-out icon at the bottom */
         <>
           <div className="flex-1 overflow-y-auto py-4 custom-scrollbar overflow-x-hidden scrollbar-hide">
-            {navGroups.filter(roleAllows).map((group) => (
+            {visibleGroups.map((group) => (
               <div key={group.label} className="mb-2">
                 <div className="mx-auto mb-2 h-px w-6 bg-white/10" />
                 <ul>
@@ -163,7 +173,7 @@ export default function Sidebar() {
         <>
           {/* Nav */}
           <div className="flex-1 overflow-y-auto py-4 custom-scrollbar overflow-x-hidden scrollbar-hide">
-            {navGroups.filter(roleAllows).map((group) => (
+            {visibleGroups.map((group) => (
               <div key={group.label} className="mb-6">
                 {!isCollapsed ? (
                   <h2 className="nav-group-label">{group.label}</h2>

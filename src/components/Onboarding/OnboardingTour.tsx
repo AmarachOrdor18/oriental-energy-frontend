@@ -53,14 +53,9 @@ const TOURS: Record<string, TourStep[]> = {
       body: 'Every week compiles into a timesheet that flows to your line manager. This page tracks each one: draft, submitted, approved, or returned. If something comes back, it lands here with the reason attached.',
     },
     {
-      target: '[data-tour="nav-team"]',
-      title: 'Your team, if you manage people',
-      body: 'If anyone reports to you, this page shows their submission status at a glance. If it is empty, that is fine. Skip it.',
-    },
-    {
-      target: '[data-tour="nav-reports"]',
-      title: 'Reports, your own numbers',
-      body: 'Not-posted summaries and hour breakdowns you can filter and export. The same numbers your manager sees about you, so there are never surprises.',
+      target: '[data-tour="nav-submissions"]',
+      title: 'Planning time away? Book it ahead',
+      body: 'Click any future weekday on the same calendar to pre-book annual or sick leave. It shows on your calendar straight away and your manager sees it when the week compiles, so nobody is surprised by an empty week.',
     },
     {
       target: '[data-tour="nav-dashboard"]',
