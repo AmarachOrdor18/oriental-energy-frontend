@@ -197,7 +197,7 @@ export default function Finance() {
     const map: Record<string, { user_id: string; user_name: string; lines: any[]; total_hours: number; total_cost: number | null; ok: number; flagged: number; sort_lines: number; sort_hours: number; sort_cost: number; sort_ok: number; sort_flagged: number }> = {};
     reviewRows.forEach((row: any) => {
       if (!map[row.user_id]) {
-        map[row.user_id] = { user_id: row.user_id, user_name: row.user_name, lines: [], total_hours: 0, total_cost: 0, ok: 0, flagged: 0 };
+        map[row.user_id] = { user_id: row.user_id, user_name: row.user_name, lines: [], total_hours: 0, total_cost: 0, ok: 0, flagged: 0, sort_lines: 0, sort_hours: 0, sort_cost: 0, sort_ok: 0, sort_flagged: 0 };
       }
       map[row.user_id].lines.push(row);
       map[row.user_id].total_hours += parseFloat(row.total_hours || 0);

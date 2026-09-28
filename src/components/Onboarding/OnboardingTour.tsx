@@ -189,6 +189,7 @@ const TOURS: Record<string, TourStep[]> = {
     },
     {
       target: '[data-tour="nav-reports"]',
+      title: 'Reports for the wider picture',
       body: 'Not-posted reports show who has not submitted, filtered by your visibility. Hours summaries break the month down by person, project or department, with custom date ranges.',
     },
     ...COMMON_END,
